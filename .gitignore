@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+dist/
+build/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP / Laravel
+vendor/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Laravel storage artifacts
+backend/storage/logs/*
+!backend/storage/logs/.gitkeep
+backend/storage/framework/*
+!backend/storage/framework/.gitkeep
+
+# Logs & local databases
+*.log
+*.sqlite
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE / editor
+.idea/
+.vscode/
