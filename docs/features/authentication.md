@@ -4,14 +4,14 @@
 
 ## Roles
 
-The system has two planned core roles:
+The system has two initial core roles:
 
 ```text
 Teacher
 Student
 ```
 
-**Decision Status:** Planned (additional roles such as admin not yet discussed — To Be Finalized if needed)
+No additional roles (Administrator, etc.) are part of the initial implementation. The authentication architecture remains extensible for future roles if needed.
 
 ---
 
