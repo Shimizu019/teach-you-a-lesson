@@ -46,12 +46,17 @@ This is **not** a simple Google Classroom clone. The system manages the complete
 | Area | Technology |
 |------|------------|
 | Frontend | React + TypeScript |
+| Build tooling | Vite |
+| Routing | React Router |
 | Styling | Tailwind CSS |
+| State/data management | TanStack Query |
 | Backend | Laravel + PHP |
 | Database | MySQL |
 | API | REST API |
 | Authentication | Laravel Sanctum |
 | Offline storage | IndexedDB |
+| Video storage | Server-managed (abstraction-ready) |
+| Conflict resolution | Server-wins |
 | PWA | Planned |
 | Development | Laragon |
 | UI/UX | Figma |
