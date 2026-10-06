@@ -33,8 +33,16 @@ Activities are tasks assigned to students within a lesson. They can be individua
 
 - **Start date/time:** activity becomes available at this time
 - **Deadline:** submissions close at this time
-- Teacher controls both values
-- Behavior outside the window (late submissions) — **Decision Status: To Be Finalized**
+The system should support teacher-controlled late submission behavior:
+
+- Teacher decides whether late submissions are accepted
+- If accepted, teacher can set penalty policies (e.g., 10% per day)
+- If not accepted, submissions after the deadline are rejected
+- Late submissions are queued for synchronization when connectivity returns
+
+This approach is particularly important for the offline-first nature of the system, where students may complete work offline and submit when connectivity is restored.
+
+**Decision Status:** Final (teacher-controlled)
 
 ## Extension / Continuation
 
