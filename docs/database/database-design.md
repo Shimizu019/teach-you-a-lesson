@@ -143,8 +143,8 @@ MySQL relational schema designed to support the complete lesson lifecycle, offli
 ## Conventions
 
 - All foreign keys use `ON DELETE RESTRICT` (or `CASCADE` where appropriate) — decided per migration
-- Soft deletes considered for `classes` and `lessons` — **Decision Status: To Be Finalized**
-- Enum statuses stored as `VARCHAR` or native `ENUM` — **Decision Status: To Be Finalized**
+- Soft deletes for `classes` and `lessons` — soft deletes preserve historical records and are particularly important for synchronization and academic history. These tables use `deleted_at` column with application-level queries that filter out deleted records by default. Hard (permanent) deletes are not supported for these entities.
+- Enum statuses stored as `VARCHAR` (e.g., `status` varchar(20)) with application-level validation and constraints. This provides schema flexibility while requirements evolve. Laravel model casts and database constraints enforce valid values (e.g., `scheduled`, `active`, `completed`, `cancelled`). Native MySQL `ENUM` is not used to avoid migration complexity when adding new status values.
 - Indexes on all FK columns and frequently queried fields (`lesson_date`, `status`, `role`)
 
 **Do not create migrations yet.**
