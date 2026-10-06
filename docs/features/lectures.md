@@ -14,7 +14,11 @@ Lectures represent recorded video material (and/or lecture materials) attached t
 ## Recorded Video
 
 - A lecture references a recorded video (`video_url`)
-- Video hosting/storage approach — **Decision Status: To Be Finalized** (external host vs self-hosted)
+- **Server-managed storage**: videos are stored on the server and associated with lectures and lessons
+- The architecture supports future storage abstraction so storage can later move to another provider (e.g., cloud object storage) without redesigning the lecture system
+- Video upload and playback are not implemented yet
+
+**Decision Status:** Final (server-managed storage, abstraction planned)
 
 ## Lesson Relationship
 
@@ -39,26 +43,41 @@ Lectures represent recorded video material (and/or lecture materials) attached t
 - The lecture is marked `completed` when `watched_percent` reaches the required threshold
 - Completion recorded in `lecture_progress.completed` and reflected in `student_progress.lecture_completed`
 
-## Quiz Dependency (Planned Flow)
+## Quiz Dependency (Finalized Flow)
 
 ```text
-Lecture
-  ↓
-Required viewing
-  ↓
-Lecture completed
-  ↓
+Lecture assigned
+      ↓
+Student watches lecture
+      ↓
+Required viewing completed
+      ↓
 Quiz unlocked
-  ↓
-Quiz completed
-  ↓
-Lecture becomes reviewable
+      ↓
+Student takes quiz
+      ↓
+Quiz submitted
+      ↓
+Lecture becomes freely reviewable
 ```
 
-- The quiz for a lesson may be **gated** behind lecture completion
-- Once the lecture is completed, the quiz becomes available
-- Once the quiz is completed, the lecture becomes available for review (re-watching)
-- **Decision Status:** Planned / To Be Finalized (exact gating rules)
+### Rules Before Quiz Completion
+
+- The student cannot simply skip the required lecture before taking the quiz
+- Required viewing progress must be tracked (`lecture_progress.watched_percent`, `completed`)
+- Backward seeking is allowed for review
+- Forward skipping of required content is restricted
+
+### Rules After Quiz Completion
+
+- The student may freely review the lecture
+- Normal video controls may be restored
+
+### Important Limitation
+
+These controls are **participation/completion controls**, not a perfect anti-cheating mechanism (see Video Restrictions below).
+
+**Decision Status:** Final (initial gating rules)
 
 ## Video Restrictions — Important Note
 
