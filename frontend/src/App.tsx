@@ -6,6 +6,7 @@ import PlaceholderView from './components/common/PlaceholderView'
 import Header from './components/layout/Header'
 import Sidebar from './components/layout/Sidebar'
 import Dashboard from './features/dashboard/Dashboard'
+import MyLessons from './features/my-lessons/MyLessons'
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -37,6 +38,8 @@ export default function App() {
               searchQuery={searchQuery}
               onClearSearch={() => setSearchQuery('')}
             />
+          ) : activeNav === 'My Lessons' ? (
+            <MyLessons />
           ) : (
             <PlaceholderView
               title={activeNav}
