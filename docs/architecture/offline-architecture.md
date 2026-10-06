@@ -107,6 +107,8 @@ A conflict is detected when:
 
 In this approach, the server state is authoritative; any local change that conflicts with the server version is discarded and overwritten by the server data. This ensures data integrity and prevents loss of authoritative server information (e.g., teacher changes, quiz scores, enrollment updates).
 
+**Preservation requirement:** Synchronization must preserve important student records (attendance, activity submissions, quiz submissions, scores, enrollment) and must avoid silently losing server data. Non-conflicting offline changes are uploaded normally; only conflicting changes resolve by server-wins, and every resolution is logged for audit visibility. The exact advanced conflict-resolution implementation can evolve later.
+
 **Why server-wins for this project:**
 - The system treats server data as the source of truth (see system-architecture.md:89)
 - Prevents accidental data loss from concurrent offline edits
