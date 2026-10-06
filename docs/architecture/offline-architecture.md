@@ -101,15 +101,47 @@ A conflict is detected when:
 
 ### Conflict Resolution Concept
 
-**Decision Status: Planned / To Be Finalized**
+**Decision Status: Final**
 
-Options being considered (not yet chosen):
-- **Last-write-wins** — most recent timestamp takes precedence (simple, may lose data)
-- **Server-wins** — server state is authoritative; local change is discarded/overwritten
-- **Manual resolution** — present conflict to user, require explicit choice
-- **Field-level merge** — merge non-overlapping field changes
+**Server-wins** is the initial conflict resolution strategy.
 
-The final strategy must be decided before Phase 12 (Synchronization) implementation.
+In this approach, the server state is authoritative; any local change that conflicts with the server version is discarded and overwritten by the server data. This ensures data integrity and prevents loss of authoritative server information (e.g., teacher changes, quiz scores, enrollment updates).
+
+**Why server-wins for this project:**
+- The system treats server data as the source of truth (see system-architecture.md:89)
+- Prevents accidental data loss from concurrent offline edits
+- Maintains consistency for critical educational records (attendance, grades, enrollment)
+- Simplifies client-side logic — clients never need to merge data
+
+**Trade-offs and considerations:**
+- Manual resolution may be needed for certain conflicts (e.g., teacher vs. student edits within the same record)
+- Future versions can evolve the strategy to include field-level merge or manual resolution where appropriate
+
+The final strategy can be refined in later phases, but server-wins provides a stable foundation for the initial implementation.
+
+### Supported Offline Operations (Initial Scope)
+
+| Operation | Offline Support |
+|-----------|-----------------|
+| View cached lessons/materials | Yes |
+| Mark attendance | Yes (queued) |
+| Complete activities | Yes (queued) |
+| Take already-synchronized quizzes | Yes (queued submission) |
+| View recorded lectures | Only if cached/downloaded while online |
+| Create/edit classes, enroll students | Planned decision (can be enabled later) |
+| Upload new video/material | No (requires connectivity) |
+
+**Decision Status:** Updated (class/student creation moved to "Planned decision")
+
+## Rules
+
+1. Offline changes are never silently discarded
+2. The sync queue is the single source of truth for pending operations
+3. Every local record carries sync metadata
+4. Conflicts are detected explicitly, not resolved silently
+5. The UI must indicate offline status and pending sync count
+
+**Note:** The sync queue and conflict detection remain core architecture components. The server-wins strategy means that conflicts are typically resolved by the server accepting its own state and discarding the conflicting local change, which is logged in the sync queue for audit purposes.
 
 ## Supported Offline Operations (Initial Scope)
 
