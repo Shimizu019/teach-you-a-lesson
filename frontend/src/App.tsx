@@ -7,6 +7,7 @@ import Header from './components/layout/Header'
 import Sidebar from './components/layout/Sidebar'
 import Dashboard from './features/dashboard/Dashboard'
 import MyLessons from './features/my-lessons/MyLessons'
+import Progress from './features/progress/Progress'
 import Subjects from './features/subjects/Subjects'
 
 export default function App() {
@@ -43,6 +44,8 @@ export default function App() {
             <MyLessons />
           ) : activeNav === 'Subjects' ? (
             <Subjects />
+          ) : activeNav === 'Progress' ? (
+            <Progress />
           ) : (
             <PlaceholderView
               title={activeNav}
