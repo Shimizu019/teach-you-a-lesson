@@ -199,3 +199,12 @@ export function TrophyIcon({ className = 'h-5 w-5' }: IconProps) {
     </svg>
   )
 }
+
+
+export function ChevronRightIcon({ className = 'h-4 w-4' }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+  )
+}

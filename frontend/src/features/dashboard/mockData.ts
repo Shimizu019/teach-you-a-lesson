@@ -80,7 +80,7 @@ export const summaryStats: SummaryStat[] = [
     label: 'Current Streak',
     value: '12 days',
     hint: 'Personal best: 15 days',
-    hintClass: 'text-neutral-400',
+    hintClass: 'text-neutral-500',
     iconChipClass: 'bg-amber-50 text-amber-600',
     icon: FlameIcon,
   },
