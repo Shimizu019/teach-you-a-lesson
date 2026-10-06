@@ -9,6 +9,7 @@ interface LessonCardProps {
   title: string
   description: string
   progress: number
+  onContinue: () => void
 }
 
 export default function LessonCard({
@@ -17,6 +18,7 @@ export default function LessonCard({
   title,
   description,
   progress,
+  onContinue,
 }: LessonCardProps) {
   return (
     <article className="flex h-full flex-col rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition-all duration-150 hover:border-neutral-300 hover:shadow-md">
@@ -40,6 +42,8 @@ export default function LessonCard({
           <ProgressBar value={progress} />
           <button
             type="button"
+            onClick={onContinue}
+            aria-label={`Continue lesson ${title}`}
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors duration-150 hover:bg-indigo-700 active:bg-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
           >
             Continue

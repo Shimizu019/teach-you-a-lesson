@@ -1,12 +1,18 @@
 // Header — top bar with page title, search, and profile area.
+// Search is controlled by the app shell (frontend-only filtering).
 //
+import { useState } from 'react'
 import { ChevronDownIcon, MenuIcon, SearchIcon } from '../common/Icons'
 
 interface HeaderProps {
   onMenuToggle: () => void
+  searchQuery: string
+  onSearchChange: (value: string) => void
 }
 
-export default function Header({ onMenuToggle }: HeaderProps) {
+export default function Header({ onMenuToggle, searchQuery, onSearchChange }: HeaderProps) {
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
+
   return (
     <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white">
       <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
@@ -35,13 +41,20 @@ export default function Header({ onMenuToggle }: HeaderProps) {
               type="search"
               aria-label="Search lessons"
               placeholder="Search lessons..."
+              value={searchQuery}
+              onChange={(event) => onSearchChange(event.target.value)}
               className="w-56 rounded-xl border border-neutral-200 bg-neutral-50 py-2.5 pl-10 pr-4 text-sm text-neutral-900 transition-colors duration-150 placeholder:text-neutral-400 hover:border-neutral-300 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 lg:w-64"
             />
           </div>
           <button
             type="button"
             aria-label="Search"
-            className="grid h-10 w-10 place-items-center rounded-lg text-neutral-600 transition-colors duration-150 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 md:hidden"
+            aria-expanded={mobileSearchOpen}
+            aria-controls="mobile-search"
+            onClick={() => setMobileSearchOpen((value) => !value)}
+            className={`grid h-10 w-10 place-items-center rounded-lg transition-colors duration-150 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 md:hidden ${
+              mobileSearchOpen ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-600'
+            }`}
           >
             <SearchIcon />
           </button>
@@ -66,6 +79,23 @@ export default function Header({ onMenuToggle }: HeaderProps) {
           </button>
         </div>
       </div>
+
+      {mobileSearchOpen && (
+        <div id="mobile-search" className="border-t border-neutral-100 px-4 py-3 sm:px-6 md:hidden">
+          <div className="relative">
+            <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <input
+              type="search"
+              aria-label="Search dashboard content"
+              placeholder="Search lessons..."
+              autoFocus
+              value={searchQuery}
+              onChange={(event) => onSearchChange(event.target.value)}
+              className="w-full rounded-xl border border-neutral-200 bg-neutral-50 py-2.5 pl-10 pr-4 text-sm text-neutral-900 transition-colors duration-150 placeholder:text-neutral-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            />
+          </div>
+        </div>
+      )}
     </header>
   )
 }

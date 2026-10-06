@@ -17,11 +17,10 @@ type IconType = ComponentType<{ className?: string }>
 interface NavItem {
   label: string
   icon: IconType
-  active?: boolean
 }
 
 const primaryNav: NavItem[] = [
-  { label: 'Dashboard', icon: DashboardIcon, active: true },
+  { label: 'Dashboard', icon: DashboardIcon },
   { label: 'My Lessons', icon: BookOpenIcon },
   { label: 'Subjects', icon: LayersIcon },
   { label: 'Progress', icon: ChartIcon },
@@ -37,23 +36,28 @@ function NavLabel({ children }: { children: string }) {
   )
 }
 
-function NavButton({ item }: { item: NavItem }) {
+interface NavButtonProps {
+  item: NavItem
+  active: boolean
+  onSelect: (label: string) => void
+}
+
+function NavButton({ item, active, onSelect }: NavButtonProps) {
   const Icon = item.icon
   return (
     <button
       type="button"
-      aria-current={item.active ? 'page' : undefined}
+      aria-current={active ? 'page' : undefined}
+      onClick={() => onSelect(item.label)}
       className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-        item.active
+        active
           ? 'bg-indigo-50 font-semibold text-indigo-700'
-          : 'font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+          : 'font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 active:bg-neutral-200/70'
       }`}
     >
       <Icon
         className={`h-5 w-5 flex-none ${
-          item.active
-            ? 'text-indigo-600'
-            : 'text-neutral-500 group-hover:text-neutral-700'
+          active ? 'text-indigo-600' : 'text-neutral-500 group-hover:text-neutral-700'
         }`}
       />
       {item.label}
@@ -64,9 +68,11 @@ function NavButton({ item }: { item: NavItem }) {
 interface SidebarProps {
   open: boolean
   onClose: () => void
+  activeItem: string
+  onSelectItem: (label: string) => void
 }
 
-export default function Sidebar({ open, onClose }: SidebarProps) {
+export default function Sidebar({ open, onClose, activeItem, onSelectItem }: SidebarProps) {
   return (
     <>
       {open && (
@@ -99,7 +105,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           <ul className="space-y-1">
             {primaryNav.map((item) => (
               <li key={item.label}>
-                <NavButton item={item} />
+                <NavButton
+                  item={item}
+                  active={item.label === activeItem}
+                  onSelect={onSelectItem}
+                />
               </li>
             ))}
           </ul>
@@ -108,7 +118,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <ul className="space-y-1">
               {secondaryNav.map((item) => (
                 <li key={item.label}>
-                  <NavButton item={item} />
+                  <NavButton
+                    item={item}
+                    active={item.label === activeItem}
+                    onSelect={onSelectItem}
+                  />
                 </li>
               ))}
             </ul>
