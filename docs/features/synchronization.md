@@ -68,7 +68,7 @@ Conflict
 - Each device increments its own `version`
 - Server detects version mismatch on upload
 - Mismatch → mark `Conflict`
-- Conflict resolution follows the strategy in `offline-architecture.md` (To Be Finalized)
+- Conflict resolution follows the **server-wins** strategy in `offline-architecture.md` (server state is authoritative)
 
 ### Record Deleted Offline
 
@@ -81,7 +81,7 @@ Conflict
 
 - Server version differs from the client's last-known version
 - Detected as a conflict on upload
-- Resolution strategy applies (last-write-wins / server-wins / manual / merge — To Be Finalized)
+- Resolution strategy applies (**server-wins** — the server version takes precedence; see `offline-architecture.md`). Advanced conflict-resolution techniques (field-level merge, manual resolution) may evolve later.
 
 ## Sync Flow
 
