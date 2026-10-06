@@ -4,9 +4,9 @@
 
 ## Overview
 
-React + TypeScript application using feature-oriented organization. The frontend is structured as a single-page application with client-side routing, offline support via IndexedDB, and centralized API communication.
+Vite-powered React + TypeScript application using feature-oriented organization. The frontend is structured as a single-page application with React Router client-side routing, offline support via IndexedDB, and centralized API communication.
 
-**Decision Status:** Planned (finalization pending on framework tooling — React Router / Vite / etc.)
+**Decision Status:** Final
 
 ## Directory Responsibilities
 
@@ -23,7 +23,7 @@ frontend/src/
 │   └── synchronization/ ← sync queue management
 ├── database/
 │   └── indexeddb/     ← IndexedDB schema definitions
-├── stores/            ← client state management (planned)
+├── stores/            ← TanStack Query data management
 ├── routes/            ← route definitions and guards
 ├── types/             ← shared TypeScript types/interfaces
 ├── utils/             ← pure utility functions
@@ -89,7 +89,17 @@ IndexedDB schema definitions and accessors:
 
 ## State Management (`stores/`)
 
-Planned centralized state store for shared UI state (not yet decided — Zustand/Redux/TanStack Query TBD).
+TanStack Query is the finalized state management solution.
+
+TanStack Query handles:
+- Server-state synchronization (caching, background refetching, optimistic updates)
+- Offline data caching via IndexedDB integration
+- Request deduplication and automatic retry
+- Query mutation with optimistic UI updates
+
+UI-only state (form inputs, modal visibility) uses React's built-in `useState`/`useReducer` hooks.
+
+Redux and Zustand are not part of the initial architecture and are not planned unless a future requirement specifically justifies them.
 
 ## Routing (`routes/`)
 
