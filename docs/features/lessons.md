@@ -47,13 +47,22 @@ Components are optional; a lesson may contain any subset.
 
 ## Automatic Completion
 
-The system may eventually mark lessons as `Completed` automatically based on configured rules (e.g., when a scheduled end time passes and components are closed).
+The system marks lessons as `Completed` automatically based on configurable rules (e.g., when a scheduled end time passes and components are closed):
+
+```text
+Lesson reaches its configured completion condition
+        ↓
+System can mark it Completed
+        ↓
+Teacher can override
+```
 
 - Automatic completion is a **configurable rule**, not a hard-coded behavior
 - The **teacher retains override capability** — a teacher can manually set status at any time
 - Automatic rules must never override an explicit teacher action
+- The scheduler/automation is **not implemented yet**
 
-**Decision Status:** Planned / To Be Finalized (exact auto-completion rules)
+**Decision Status:** Final (configurable rules with teacher override)
 
 ## Teacher Override
 
