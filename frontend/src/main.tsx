@@ -1,5 +1,10 @@
-// main.tsx — placeholder entry point.
-// No React application has been initialized yet.
-// Functional implementation will be added in a later phase.
-//
-export {};
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.tsx'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
