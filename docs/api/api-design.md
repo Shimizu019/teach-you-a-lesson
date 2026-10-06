@@ -128,8 +128,8 @@ Successful responses follow a consistent JSON envelope:
 ```json
 {
   "success": true,
-  "data": { },
-  "message": "optional"
+  "data": {},
+  "message": null
 }
 ```
 
@@ -143,7 +143,7 @@ List responses include pagination metadata:
 }
 ```
 
-**Decision Status:** Planned / To Be Finalized (exact envelope shape)
+**Decision Status:** Final
 
 ### Error Handling
 
@@ -160,7 +160,7 @@ Error responses follow a consistent JSON shape:
 }
 ```
 
-**Decision Status:** Planned / To Be Finalized (exact error shape)
+**Decision Status:** Final
 
 ### HTTP Status Conventions
 
