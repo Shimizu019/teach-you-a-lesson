@@ -18,7 +18,7 @@ Identification
 | **Multiple Choice** | Student selects one option from `quiz_options` |
 | **Identification** | Student types a free-text answer |
 
-**Decision Status:** Planned (additional types — e.g., true/false, essay — not yet discussed)
+**Decision Status:** Final (initial scope: Multiple Choice + Identification only; additional types deferred)
 
 ## Quiz Creation
 
@@ -42,7 +42,7 @@ Identification
 
 - Optional time limit per quiz (`time_limit_seconds`)
 - Timer starts when the student begins the attempt
-- Behavior on timeout (auto-submit vs discard) — **Decision Status: To Be Finalized**
+- **Auto-submit**: when the timer reaches zero, the student's current answers should be submitted. This is especially important for offline operation so student work is not unnecessarily lost.
 
 ## Submission
 
@@ -53,8 +53,7 @@ Identification
 ## Automatic Scoring
 
 - **Multiple Choice:** scored automatically (compare selected option to correct answer)
-- **Identification:** scored automatically if the answer matches the reference (`correct_answer`); otherwise may require teacher review
-- **Decision Status:** Planned (exact matching rules for identification — e.g., case sensitivity, tolerance — To Be Finalized)
+- **Identification:** scored automatically using **case-insensitive, whitespace-normalized** matching against the reference answer (`correct_answer`). Teacher-controlled accepted answers/aliases may be considered later if needed.
 
 ## Results
 
