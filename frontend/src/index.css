@@ -4,9 +4,93 @@
   color-scheme: light;
 }
 
+html,
 body {
+  background-color: var(--color-neutral-50);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ------------------------------------------------------------------
+   Class-based dark theme (prototype — no theme library).
+   Tailwind v4 exposes palette values as CSS variables (--color-*), so
+   re-declaring them under `.dark` updates every matching utility —
+   including hover/focus variants — automatically. These rules stay
+   unlayered so they override Tailwind's layered utilities wherever a
+   token is shared between properties (e.g. `text-white` vs `bg-white`).
+   ------------------------------------------------------------------ */
+.dark {
+  color-scheme: dark;
+  --tw-ring-offset-color: #1c1c20;
+
+  /* Surfaces, borders and text */
+  --color-white: #1c1c20;
+  --color-neutral-50: #121215;
+  --color-neutral-100: #26262b;
+  --color-neutral-200: #3a3a41;
+  --color-neutral-300: #52525b;
+  --color-neutral-500: #a1a1aa;
+  --color-neutral-600: #d4d4d8;
+  --color-neutral-700: #e4e4e7;
+  --color-neutral-900: #fafafa;
+  --color-neutral-950: #fafafa;
+
+  /* Indigo accent tiles */
+  --color-indigo-50: #26235c;
+
+  /* Status chips — light tiles become dark tints */
+  --color-amber-50: #2a2109;
+  --color-cyan-50: #0a2b36;
+  --color-emerald-50: #0b2a20;
+  --color-green-50: #0d2913;
+  --color-pink-50: #320d1e;
+  --color-red-50: #2e1114;
+  --color-rose-50: #340d17;
+  --color-sky-50: #0b2a3e;
+  --color-teal-50: #0a2a27;
+  --color-violet-50: #221a40;
+  --color-yellow-50: #2b2308;
+  --color-red-200: #5f1e1e;
+  --color-green-200: #173f27;
+}
+
+/* `text-white` must stay white even though `--color-white` flipped. */
+.dark .text-white {
+  color: #ffffff;
+}
+
+/* Modal / drawer overlays must remain dark. */
+.dark .bg-neutral-900\/50 {
+  background-color: rgb(0 0 0 / 0.6);
+}
+.dark .bg-neutral-900\/40 {
+  background-color: rgb(0 0 0 / 0.55);
+}
+
+/* Indigo accent text is lightened for dark surfaces. */
+.dark .text-indigo-500,
+.dark .text-indigo-600,
+.dark .text-indigo-700 {
+  color: #a5b4fc;
+}
+.dark .hover\:text-indigo-700:hover {
+  color: #c7d2fe;
+}
+.dark .group:hover .group-hover\:text-indigo-600 {
+  color: #a5b4fc;
+}
+
+/* Status text colors are lightened to match the dark chip tints. */
+.dark .text-amber-600,
+.dark .text-amber-700 { color: #fcd34d; }
+.dark .text-cyan-600 { color: #67e8f9; }
+.dark .text-emerald-600,
+.dark .text-emerald-700 { color: #6ee7b7; }
+.dark .text-green-600,
+.dark .text-green-700 { color: #86efac; }
+.dark .text-red-700 { color: #fca5a5; }
+.dark .text-rose-600 { color: #fda4af; }
+.dark .text-sky-600,
+.dark .text-sky-700 { color: #7dd3fc; }
+.dark .text-teal-600 { color: #5eead4; }
+.dark .text-violet-600 { color: #c4b5fd; }
 
