@@ -188,6 +188,17 @@ export function EyeIcon({ className = 'h-5 w-5' }: IconProps) {
   )
 }
 
+export function EyeOffIcon({ className = 'h-5 w-5' }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c5.5 0 9 6.5 9 6.5a17.85 17.85 0 0 1-2.67 3.58" />
+      <path d="M6.61 6.61A17.85 17.85 0 0 0 3 11.5S6.5 18 12 18a10.43 10.43 0 0 0 4.27-.92" />
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+      <line x1="2" y1="2" x2="22" y2="22" />
+    </svg>
+  )
+}
+
 export function TrophyIcon({ className = 'h-5 w-5' }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
