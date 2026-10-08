@@ -208,3 +208,22 @@ export function ChevronRightIcon({ className = 'h-4 w-4' }: IconProps) {
     </svg>
   )
 }
+
+export function UsersIcon({ className = 'h-5 w-5' }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="9" cy="7" r="4" />
+      <path d="M3 20a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4v1a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1" />
+    </svg>
+  );
+}
+
+export function PlusIcon({ className = 'h-5 w-5' }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+

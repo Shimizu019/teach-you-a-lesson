@@ -1,19 +1,21 @@
 // PlaceholderDialog — modal that acknowledges a prototype interaction.
 // Frontend-only feedback; no real functionality behind it.
 //
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { CloseIcon } from './Icons'
 
 interface PlaceholderDialogProps {
   title: string
   description: string
   onClose: () => void
+  children?: ReactNode
 }
 
 export default function PlaceholderDialog({
   title,
   description,
   onClose,
+  children,
 }: PlaceholderDialogProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
 
@@ -58,15 +60,17 @@ export default function PlaceholderDialog({
           </button>
         </div>
         <p className="mt-2 text-sm leading-relaxed text-neutral-500">{description}</p>
-        <div className="mt-5 flex justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-indigo-700 active:bg-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-          >
-            Got it
-          </button>
-        </div>
+        {children ?? (
+          <div className="mt-5 flex justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-indigo-700 active:bg-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+            >
+              Got it
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -9,14 +9,23 @@ import Dashboard from './features/dashboard/Dashboard'
 import MyLessons from './features/my-lessons/MyLessons'
 import Progress from './features/progress/Progress'
 import Subjects from './features/subjects/Subjects'
+import Classrooms from './features/classrooms/Classrooms'
+import ClassroomPage from './features/classrooms/ClassroomPage'
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeNav, setActiveNav] = useState('Dashboard')
   const [searchQuery, setSearchQuery] = useState('')
+  const [openClassId, setOpenClassId] = useState<string | undefined>(undefined)
 
   const handleSelectNav = (label: string) => {
     setActiveNav(label)
+    setSidebarOpen(false)
+  }
+
+  const handleOpenClass = (id: string) => {
+    setOpenClassId(id)
+    setActiveNav('Classroom')
     setSidebarOpen(false)
   }
 
@@ -46,6 +55,10 @@ export default function App() {
             <Subjects />
           ) : activeNav === 'Progress' ? (
             <Progress />
+          ) : activeNav === 'Classrooms' ? (
+            <Classrooms onOpenClass={handleOpenClass} />
+          ) : activeNav === 'Classroom' ? (
+            <ClassroomPage classId={openClassId} />
           ) : (
             <PlaceholderView
               title={activeNav}

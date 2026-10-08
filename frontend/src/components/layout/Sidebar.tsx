@@ -24,6 +24,7 @@ const primaryNav: NavItem[] = [
   { label: 'My Lessons', icon: BookOpenIcon },
   { label: 'Subjects', icon: LayersIcon },
   { label: 'Progress', icon: ChartIcon },
+  { label: 'Classrooms', icon: GraduationCapIcon },
 ]
 
 const secondaryNav: NavItem[] = [{ label: 'Settings', icon: SettingsIcon }]
