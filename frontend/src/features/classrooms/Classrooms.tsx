@@ -1,20 +1,9 @@
-// Classrooms — displays all classrooms with creation functionality
+// Classrooms — teacher view: all classrooms + Create Class flow.
+// Frontend-only: created classes live in local React state.
 import { useState } from 'react';
 import PlaceholderDialog from '../../components/common/PlaceholderDialog';
 import { ArrowRightIcon, PlusIcon } from '../../components/common/Icons';
-import CLASSES from './mockData';
-
-interface Classroom {
-  id: string;
-  name: string;
-  grade: number;
-  section: string;
-  students: number;
-  lessons: number;
-  quizzes: number;
-  joinCode: string;
-  openClass: boolean;
-}
+import type { Classroom } from './types';
 
 interface CreateClassDialogState {
   isOpen: boolean;
@@ -24,12 +13,25 @@ interface CreateClassDialogState {
   description: string;
 }
 
+function generateJoinCode(name: string, existing: Classroom[]): string {
+  const prefix = name.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 4) || 'CLASS';
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
+    const code = `${prefix}${suffix}`;
+    if (!existing.some((cls) => cls.joinCode.toUpperCase() === code)) {
+      return code;
+    }
+  }
+  return `${prefix}${Date.now().toString().slice(-4)}`;
+}
+
 interface ClassroomsProps {
+  classrooms: Classroom[];
+  onCreateClass: (classroom: Classroom) => void;
   onOpenClass?: (id: string) => void;
 }
 
-export default function Classrooms({ onOpenClass }: ClassroomsProps) {
-  const [classes] = useState<Classroom[]>(CLASSES);
+export default function Classrooms({ classrooms, onCreateClass, onOpenClass }: ClassroomsProps) {
   const [createDialog, setCreateDialog] = useState<CreateClassDialogState>({
     isOpen: false,
     className: '',
@@ -37,21 +39,29 @@ export default function Classrooms({ onOpenClass }: ClassroomsProps) {
     grade: '',
     description: ''
   });
+  const [createdClass, setCreatedClass] = useState<Classroom | null>(null);
 
   const handleCreateClass = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would send data to backend
-    // For prototype, we just show success and close dialog
-    alert('Class created successfully! (Frontend prototype - no backend integration)');
-    setCreateDialog(prev => ({ ...prev, isOpen: false }));
-    // Reset form
-    setCreateDialog(prev => ({ 
-      ...prev, 
-      className: '', 
-      section: '', 
-      grade: '', 
-      description: '' 
-    }));
+    const name = createDialog.className.trim();
+    const section = createDialog.section.trim();
+    if (!name || !section || !createDialog.grade) return;
+    // Frontend-only: the new class is stored in local React state.
+    const newClass: Classroom = {
+      id: `class-${Date.now()}`,
+      name,
+      grade: Number(createDialog.grade),
+      section,
+      students: 0,
+      lessons: 0,
+      quizzes: 0,
+      joinCode: generateJoinCode(name, classrooms),
+      openClass: true,
+      description: createDialog.description.trim() || undefined
+    };
+    onCreateClass(newClass);
+    setCreateDialog({ isOpen: false, className: '', section: '', grade: '', description: '' });
+    setCreatedClass(newClass);
   };
 
   const openCreateClassDialog = () => {
@@ -88,7 +98,7 @@ export default function Classrooms({ onOpenClass }: ClassroomsProps) {
 
       {/* Classes Grid */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {classes.map((cls) => (
+        {classrooms.map((cls) => (
           <article
             key={cls.id}
             className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition-shadow duration-150 hover:shadow-md"
@@ -104,6 +114,9 @@ export default function Classrooms({ onOpenClass }: ClassroomsProps) {
                     <span>Grade {cls.grade} • </span>
                     <span>Section {cls.section}</span>
                   </div>
+                  {cls.description && (
+                    <p className="mt-2 line-clamp-2 text-sm text-neutral-500">{cls.description}</p>
+                  )}
                 </div>
                 <div className="text-right">
                   <div className="mb-2">
@@ -237,6 +250,33 @@ export default function Classrooms({ onOpenClass }: ClassroomsProps) {
               </button>
             </div>
           </form>
+        </PlaceholderDialog>
+      )}
+
+      {/* Class created success dialog with generated code */}
+      {createdClass && (
+        <PlaceholderDialog
+          title="Class created"
+          description={`“${createdClass.name}” has been added to your classrooms. Share this class code with your students so they can join.`}
+          onClose={() => setCreatedClass(null)}
+        >
+          <div className="mt-4 rounded-xl border border-dashed border-indigo-300 bg-indigo-50 p-4 text-center">
+            <p className="text-xs font-medium uppercase tracking-wider text-indigo-500">
+              Class Code
+            </p>
+            <p className="mt-1 text-2xl font-bold tracking-widest text-indigo-700">
+              {createdClass.joinCode}
+            </p>
+          </div>
+          <div className="mt-5 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setCreatedClass(null)}
+              className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-indigo-700 active:bg-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+            >
+              Got it
+            </button>
+          </div>
         </PlaceholderDialog>
       )}
     </div>

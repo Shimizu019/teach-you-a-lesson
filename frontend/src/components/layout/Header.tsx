@@ -8,9 +8,17 @@ interface HeaderProps {
   onMenuToggle: () => void
   searchQuery: string
   onSearchChange: (value: string) => void
+  role: 'teacher' | 'student'
+  onRoleChange: (role: 'teacher' | 'student') => void
 }
 
-export default function Header({ onMenuToggle, searchQuery, onSearchChange }: HeaderProps) {
+export default function Header({
+  onMenuToggle,
+  searchQuery,
+  onSearchChange,
+  role,
+  onRoleChange,
+}: HeaderProps) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
   return (
@@ -35,6 +43,28 @@ export default function Header({ onMenuToggle, searchQuery, onSearchChange }: He
         </div>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          {/* Role switcher (frontend-only prototype) */}
+          <div
+            role="group"
+            aria-label="Switch role"
+            className="flex flex-none items-center rounded-xl border border-neutral-200 bg-neutral-50 p-1"
+          >
+            {(['teacher', 'student'] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={role === value}
+                onClick={() => onRoleChange(value)}
+                className={`rounded-lg px-2.5 py-1 text-xs font-medium capitalize transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                  role === value
+                    ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-indigo-100'
+                    : 'text-neutral-500 hover:text-neutral-700'
+                }`}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
           <div className="relative hidden md:block">
             <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
             <input

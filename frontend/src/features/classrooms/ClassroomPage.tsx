@@ -5,6 +5,7 @@ import ProgressBar from '../../components/common/ProgressBar';
 import StatCard from '../../components/common/StatCard';
 import { BookOpenIcon, FlaskIcon, TrophyIcon, UsersIcon } from '../../components/common/Icons';
 import CLASSES from './mockData';
+import type { Classroom } from './types';
 
 interface Student {
   id: string;
@@ -13,6 +14,8 @@ interface Student {
   avatarColor: string;
   assignments: number;
   assignmentsSubmitted: number;
+  quizScore: number;
+  attendance: number;
 }
 
 interface Lesson {
@@ -43,19 +46,24 @@ interface Activity {
 
 interface ClassroomPageProps {
   classId?: string;
+  classrooms: Classroom[];
 }
 
-export default function ClassroomPage({ classId }: ClassroomPageProps) {
-  const classroom = CLASSES.find((entry) => entry.id === classId) ?? CLASSES[0];
+export default function ClassroomPage({ classId, classrooms }: ClassroomPageProps) {
+  const classroom = classrooms.find((entry) => entry.id === classId) ?? classrooms[0];
+  // Mock roster only exists for the preset mock classes; created classes start empty.
+  const isPresetClass = CLASSES.some((entry) => entry.id === classroom.id);
 
   const [students] = useState<Student[]>([
-    { id: 's1', name: 'Maria Santos', email: 'maria.santos@school.edu.ph', avatarColor: 'bg-pink-500', assignments: 12, assignmentsSubmitted: 9 },
-    { id: 's2', name: 'John Deo', email: 'john.deo@school.edu.ph', avatarColor: 'bg-blue-500', assignments: 12, assignmentsSubmitted: 10 },
-    { id: 's3', name: 'Ana Cruz', email: 'ana.cruz@school.edu.ph', avatarColor: 'bg-green-500', assignments: 12, assignmentsSubmitted: 8 },
-    { id: 's4', name: 'Pedro Lim', email: 'pedro.lim@school.edu.ph', avatarColor: 'bg-yellow-500', assignments: 12, assignmentsSubmitted: 11 },
-    { id: 's5', name: 'Liza Manda', email: 'liza.manda@school.edu.ph', avatarColor: 'bg-purple-500', assignments: 12, assignmentsSubmitted: 7 },
-    { id: 's6', name: 'Carlos Reyes', email: 'carlos.reyes@school.edu.ph', avatarColor: 'bg-red-500', assignments: 12, assignmentsSubmitted: 9 },
+    { id: 's1', name: 'Maria Santos', email: 'maria.santos@school.edu.ph', avatarColor: 'bg-pink-500', assignments: 12, assignmentsSubmitted: 9, quizScore: 92, attendance: 96 },
+    { id: 's2', name: 'John Deo', email: 'john.deo@school.edu.ph', avatarColor: 'bg-blue-500', assignments: 12, assignmentsSubmitted: 10, quizScore: 85, attendance: 92 },
+    { id: 's3', name: 'Ana Cruz', email: 'ana.cruz@school.edu.ph', avatarColor: 'bg-green-500', assignments: 12, assignmentsSubmitted: 8, quizScore: 78, attendance: 88 },
+    { id: 's4', name: 'Pedro Lim', email: 'pedro.lim@school.edu.ph', avatarColor: 'bg-yellow-500', assignments: 12, assignmentsSubmitted: 11, quizScore: 95, attendance: 98 },
+    { id: 's5', name: 'Liza Manda', email: 'liza.manda@school.edu.ph', avatarColor: 'bg-purple-500', assignments: 12, assignmentsSubmitted: 7, quizScore: 70, attendance: 84 },
+    { id: 's6', name: 'Carlos Reyes', email: 'carlos.reyes@school.edu.ph', avatarColor: 'bg-red-500', assignments: 12, assignmentsSubmitted: 9, quizScore: 88, attendance: 90 },
   ]);
+
+  const rosterStudents = isPresetClass ? students : [];
 
   const [lessons] = useState<Lesson[]>([
     { id: 'l1', title: 'Introduction to Programming', subject: 'Computer Science', duration: '45 min', status: 'in-progress', progress: 70 },
@@ -178,8 +186,13 @@ export default function ClassroomPage({ classId }: ClassroomPageProps) {
               Add Student
             </button>
           </div>
+          {rosterStudents.length === 0 && (
+            <p className="rounded-xl border border-dashed border-neutral-300 p-4 text-center text-sm text-neutral-500">
+              No students yet. Use Add Student to enroll students in this class.
+            </p>
+          )}
           <div className="space-y-3">
-            {students.map((student) => (
+            {rosterStudents.map((student) => (
               <div
                 key={student.id}
                 className="flex items-center gap-3 rounded-xl border border-neutral-200 p-3 transition-colors duration-150 hover:bg-neutral-50"
@@ -279,6 +292,94 @@ export default function ClassroomPage({ classId }: ClassroomPageProps) {
             </li>
           ))}
         </ul>
+      </section>
+
+      {/* All Scores + All Attendance (teacher-only) */}
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold tracking-tight text-neutral-900">All Scores</h3>
+            <span className="text-xs font-medium text-neutral-500">
+              {rosterStudents.length} students
+            </span>
+          </div>
+          {rosterStudents.length > 0 ? (
+            <div className="space-y-3">
+              {rosterStudents.map((student) => (
+                <div
+                  key={student.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 p-3 transition-colors duration-150 hover:bg-neutral-50"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-neutral-900">
+                      {student.name}
+                    </p>
+                    <p className="truncate text-xs text-neutral-500">
+                      Assignments {student.assignmentsSubmitted}/{student.assignments}
+                    </p>
+                  </div>
+                  <span className="inline-flex flex-none items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600">
+                    Quiz {student.quizScore}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-neutral-500">
+              No scores yet — this class has no students.
+            </p>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold tracking-tight text-neutral-900">
+              All Attendance
+            </h3>
+            <span className="text-xs font-medium text-neutral-500">This term</span>
+          </div>
+          {rosterStudents.length > 0 ? (
+            <div className="space-y-3">
+              {rosterStudents.map((student) => (
+                <div
+                  key={student.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 p-3 transition-colors duration-150 hover:bg-neutral-50"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-neutral-900">
+                      {student.name}
+                    </p>
+                    <p className="truncate text-xs text-neutral-500">{student.email}</p>
+                  </div>
+                  <span
+                    className={`inline-flex flex-none items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      student.attendance >= 90
+                        ? 'bg-green-50 text-green-700'
+                        : student.attendance >= 75
+                          ? 'bg-amber-50 text-amber-700'
+                          : 'bg-red-50 text-red-700'
+                    }`}
+                  >
+                    {student.attendance}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-neutral-500">
+              No attendance yet — this class has no students.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Classroom Chat placeholder */}
+      <section className="rounded-2xl border border-dashed border-neutral-300 bg-white p-6 shadow-sm">
+        <h3 className="text-lg font-semibold tracking-tight text-neutral-900">Classroom Chat</h3>
+        <p className="mt-2 text-sm text-neutral-500">Chat will be available in a future version.</p>
+        <p className="mt-1 text-sm text-neutral-500">
+          Teacher controls will determine which students can participate.
+        </p>
       </section>
 
       {/* Add Student dialog (prototype) */}

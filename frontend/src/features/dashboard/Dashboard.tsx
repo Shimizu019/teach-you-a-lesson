@@ -20,6 +20,14 @@ interface DashboardProps {
   onClearSearch: () => void
 }
 
+// Browser's current date, evaluated when the app loads (no hardcoded date).
+const TODAY_LABEL = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(new Date())
+
 function SectionHeader({ title, action }: { title: string; action?: string }) {
   return (
     <div className="flex items-center justify-between gap-4">
@@ -90,7 +98,7 @@ export default function Dashboard({ searchQuery, onClearSearch }: DashboardProps
       {/* Welcome / hero */}
       <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8">
         <p className="text-xs font-medium uppercase tracking-wider text-neutral-500">
-          {new Intl.DateTimeFormat('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date())}
+          {TODAY_LABEL}
         </p>
         <h2 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">
           Welcome back, Learner
