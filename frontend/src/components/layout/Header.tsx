@@ -10,6 +10,7 @@ interface HeaderProps {
   onSearchChange: (value: string) => void
   role: 'teacher' | 'student'
   onRoleChange: (role: 'teacher' | 'student') => void
+  onAuthModeChange?: (mode: 'login' | 'register') => void
 }
 
 export default function Header({
@@ -18,6 +19,7 @@ export default function Header({
   onSearchChange,
   role,
   onRoleChange,
+  onAuthModeChange,
 }: HeaderProps) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
@@ -89,6 +91,17 @@ export default function Header({
             <SearchIcon />
           </button>
 
+          <span aria-hidden="true" className="hidden h-6 w-px bg-neutral-200 md:block" />
+
+          {onAuthModeChange && (
+            <button
+              type="button"
+              onClick={() => onAuthModeChange('login')}
+              className="hidden items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 md:flex"
+            >
+              Sign in
+            </button>
+          )}
           <span aria-hidden="true" className="hidden h-6 w-px bg-neutral-200 md:block" />
 
           <button

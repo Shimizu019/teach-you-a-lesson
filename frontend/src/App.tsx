@@ -19,6 +19,8 @@ import StudentRegistration from './features/students/StudentRegistration'
 import StudentProfile from './features/students/StudentProfile'
 import type { StudentProfile as StudentProfileData } from './features/students/types'
 import Settings from './features/settings/Settings'
+import Login from './features/auth/components/Login'
+import Register from './features/auth/components/Register'
 import {
   DEFAULT_TEACHER_ACCOUNT,
   type AccountValues,
@@ -27,6 +29,7 @@ import {
 } from './features/settings/types'
 
 type Role = 'teacher' | 'student'
+type AuthMode = 'login' | 'register' | null
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -45,6 +48,9 @@ export default function App() {
   const [language, setLanguage] = useState<Language>('English')
   const [teacherAccount, setTeacherAccount] = useState<AccountValues>(DEFAULT_TEACHER_ACCOUNT)
   const [studentAccount, setStudentAccount] = useState<AccountValues | null>(null)
+
+  // Auth mode — shows Login/Register over the dashboard shell.
+  const [authMode, setAuthMode] = useState<AuthMode>(null)
 
   // Apply the selected theme to <html>; "system" follows the OS preference.
   useEffect(() => {
@@ -120,6 +126,35 @@ export default function App() {
     else setTeacherAccount(values)
   }
 
+  const handleLogin = (values: { email: string; password: string; role: Role }) => {
+    setRole(values.role)
+    setStudentProfile(null)
+    setAuthMode(null)
+    setActiveNav('Dashboard')
+  }
+
+  const handleRegister = (values: {
+    firstName: string
+    middleName: string
+    lastName: string
+    email: string
+    password: string
+    role: Role
+  }) => {
+    setRole(values.role)
+    if (values.role === 'student') {
+      setStudentProfile({
+        firstName: values.firstName,
+        middleName: values.middleName,
+        lastName: values.lastName,
+        section: '',
+        grade: '',
+      })
+    }
+    setAuthMode(null)
+    setActiveNav('Dashboard')
+  }
+
   const openStudentClass =
     openClassId && joinedClassIds.includes(openClassId)
       ? classrooms.find((entry) => entry.id === openClassId)
@@ -127,80 +162,90 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <Sidebar
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        activeItem={activeNav}
-        onSelectItem={handleSelectNav}
-        role={role}
-        studentName={isStudent ? studentFullName : null}
-      />
-      <div className="lg:pl-64">
-        <Header
-          onMenuToggle={() => setSidebarOpen((value) => !value)}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+    {authMode === 'login' ? (
+      <Login onSubmit={handleLogin} />
+    ) : authMode === 'register' ? (
+      <Register onSubmit={handleRegister} />
+    ) : (
+      <>
+        <Sidebar
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          activeItem={activeNav}
+          onSelectItem={handleSelectNav}
           role={role}
-          onRoleChange={handleRoleChange}
+          studentName={isStudent ? studentFullName : null}
+          onAuthModeChange={setAuthMode}
         />
-        <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-          {isStudent && !studentProfile ? (
-            <StudentRegistration onSubmit={handleRegisterStudent} />
-          ) : activeNav === 'Dashboard' ? (
-            <Dashboard
-              searchQuery={searchQuery}
-              onClearSearch={() => setSearchQuery('')}
-            />
-          ) : activeNav === 'My Lessons' ? (
-            <MyLessons />
-          ) : activeNav === 'Subjects' ? (
-            <Subjects />
-          ) : activeNav === 'Progress' ? (
-            <Progress />
-          ) : activeNav === 'Classrooms' ? (
-            isStudent ? (
-              <StudentClassrooms
-                classrooms={classrooms}
-                joinedIds={joinedClassIds}
-                onJoin={handleJoinClass}
-                onOpenClass={handleOpenClass}
+        <div className="lg:pl-64">
+          <Header
+            onMenuToggle={() => setSidebarOpen((value) => !value)}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            role={role}
+            onRoleChange={handleRoleChange}
+            onAuthModeChange={setAuthMode}
+          />
+          <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+            {isStudent && !studentProfile ? (
+              <StudentRegistration onSubmit={handleRegisterStudent} />
+            ) : activeNav === 'Dashboard' ? (
+              <Dashboard
+                searchQuery={searchQuery}
+                onClearSearch={() => setSearchQuery('')}
               />
+            ) : activeNav === 'My Lessons' ? (
+              <MyLessons />
+            ) : activeNav === 'Subjects' ? (
+              <Subjects />
+            ) : activeNav === 'Progress' ? (
+              <Progress />
+            ) : activeNav === 'Classrooms' ? (
+              isStudent ? (
+                <StudentClassrooms
+                  classrooms={classrooms}
+                  joinedIds={joinedClassIds}
+                  onJoin={handleJoinClass}
+                  onOpenClass={handleOpenClass}
+                />
+              ) : (
+                <Classrooms
+                  classrooms={classrooms}
+                  onCreateClass={handleCreateClass}
+                  onOpenClass={handleOpenClass}
+                />
+              )
+            ) : activeNav === 'Classroom' ? (
+              isStudent ? (
+                <StudentClassroomView
+                  classroom={openStudentClass}
+                  onBack={() => setActiveNav('Classrooms')}
+                />
+              ) : (
+                <ClassroomPage classId={openClassId} classrooms={classrooms} />
+              )
+            ) : activeNav === 'Settings' ? (
+              <Settings
+                role={role}
+                theme={theme}
+                onThemeChange={setTheme}
+                language={language}
+                onLanguageChange={setLanguage}
+                account={currentAccount}
+                onAccountSave={handleSaveAccount}
+              />
+            ) : activeNav === 'Profile' && isStudent && studentProfile ? (
+              <StudentProfile profile={studentProfile} />
             ) : (
-              <Classrooms
-                classrooms={classrooms}
-                onCreateClass={handleCreateClass}
-                onOpenClass={handleOpenClass}
+              <PlaceholderView
+                title={activeNav}
+                onBack={() => setActiveNav('Dashboard')}
               />
-            )
-          ) : activeNav === 'Classroom' ? (
-            isStudent ? (
-              <StudentClassroomView
-                classroom={openStudentClass}
-                onBack={() => setActiveNav('Classrooms')}
-              />
-            ) : (
-              <ClassroomPage classId={openClassId} classrooms={classrooms} />
-            )
-          ) : activeNav === 'Settings' ? (
-            <Settings
-              role={role}
-              theme={theme}
-              onThemeChange={setTheme}
-              language={language}
-              onLanguageChange={setLanguage}
-              account={currentAccount}
-              onAccountSave={handleSaveAccount}
-            />
-          ) : activeNav === 'Profile' && isStudent && studentProfile ? (
-            <StudentProfile profile={studentProfile} />
-          ) : (
-            <PlaceholderView
-              title={activeNav}
-              onBack={() => setActiveNav('Dashboard')}
-            />
-          )}
-        </main>
-      </div>
+            )}
+          </main>
+        </div>
+      </>
+    )}
     </div>
   )
 }
