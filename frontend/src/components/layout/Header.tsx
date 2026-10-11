@@ -1,28 +1,29 @@
-// Header — top bar with page title, search, role preview, and sign-in action.
-// Search is controlled by the app shell (frontend-only filtering).
-// No signed-in profile is shown here: the header is demo/preview chrome only.
+// Header - top bar with page title, search, the authenticated user, and logout.
+// No role switcher and no sign-in button: the role comes from the session and
+// a signed-in user is always shown with a working logout action.
 //
 import { useState } from 'react'
 import { MenuIcon, SearchIcon } from '../common/Icons'
+import type { SessionUser } from '../../features/auth/types'
 
 interface HeaderProps {
   onMenuToggle: () => void
   searchQuery: string
   onSearchChange: (value: string) => void
-  role: 'teacher' | 'student'
-  onRoleChange: (role: 'teacher' | 'student') => void
-  onAuthModeChange?: (mode: 'login' | 'register') => void
+  user: SessionUser
+  onLogout: () => void
 }
 
 export default function Header({
   onMenuToggle,
   searchQuery,
   onSearchChange,
-  role,
-  onRoleChange,
-  onAuthModeChange,
+  user,
+  onLogout,
 }: HeaderProps) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ')
+  const initial = (user.firstName || user.email || '?').charAt(0).toUpperCase()
 
   return (
     <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white">
@@ -46,31 +47,6 @@ export default function Header({
         </div>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          {/* Role preview switcher — prototype tool, not an account change */}
-          <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-            Preview role
-          </span>
-          <div
-            role="group"
-            aria-label="Preview role"
-            className="flex flex-none items-center rounded-xl border border-neutral-200 bg-neutral-50 p-1"
-          >
-            {(['teacher', 'student'] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={role === value}
-                onClick={() => onRoleChange(value)}
-                className={`rounded-lg px-2.5 py-1 text-xs font-medium capitalize transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                  role === value
-                    ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-indigo-100'
-                    : 'text-neutral-500 hover:text-neutral-700'
-                }`}
-              >
-                {value}
-              </button>
-            ))}
-          </div>
           <div className="relative hidden md:block">
             <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
             <input
@@ -95,17 +71,25 @@ export default function Header({
             <SearchIcon />
           </button>
 
-          <span aria-hidden="true" className="hidden h-6 w-px bg-neutral-200 md:block" />
+          <span aria-hidden="true" className="hidden h-6 w-px bg-neutral-200 sm:block" />
 
-          {onAuthModeChange && (
-            <button
-              type="button"
-              onClick={() => onAuthModeChange('login')}
-              className="hidden items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 md:flex"
-            >
-              Sign in
-            </button>
-          )}
+          <div className="hidden items-center gap-2.5 sm:flex">
+            <span className="grid h-9 w-9 flex-none place-items-center rounded-full bg-indigo-600 text-sm font-semibold text-white">
+              {initial}
+            </span>
+            <div className="min-w-0 leading-tight">
+              <p className="max-w-[10rem] truncate text-sm font-medium text-neutral-900">{fullName}</p>
+              <p className="truncate text-[11px] capitalize text-neutral-500">{user.role}</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onLogout}
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors duration-150 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          >
+            Log out
+          </button>
         </div>
       </div>
 
