@@ -1,8 +1,9 @@
-// Header — top bar with page title, search, and profile area.
+// Header — top bar with page title, search, role preview, and sign-in action.
 // Search is controlled by the app shell (frontend-only filtering).
+// No signed-in profile is shown here: the header is demo/preview chrome only.
 //
 import { useState } from 'react'
-import { ChevronDownIcon, MenuIcon, SearchIcon } from '../common/Icons'
+import { MenuIcon, SearchIcon } from '../common/Icons'
 
 interface HeaderProps {
   onMenuToggle: () => void
@@ -45,10 +46,13 @@ export default function Header({
         </div>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          {/* Role switcher (frontend-only prototype) */}
+          {/* Role preview switcher — prototype tool, not an account change */}
+          <span className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+            Preview role
+          </span>
           <div
             role="group"
-            aria-label="Switch role"
+            aria-label="Preview role"
             className="flex flex-none items-center rounded-xl border border-neutral-200 bg-neutral-50 p-1"
           >
             {(['teacher', 'student'] as const).map((value) => (
@@ -102,24 +106,6 @@ export default function Header({
               Sign in
             </button>
           )}
-          <span aria-hidden="true" className="hidden h-6 w-px bg-neutral-200 md:block" />
-
-          <button
-            type="button"
-            aria-label="Open profile menu"
-            className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors duration-150 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 sm:px-3"
-          >
-            <span className="grid h-8 w-8 flex-none place-items-center rounded-full bg-indigo-600 text-xs font-medium text-white">
-              AR
-            </span>
-            <span className="hidden text-left sm:block">
-              <span className="block text-sm font-medium leading-tight text-neutral-900">
-                Alex Rivera
-              </span>
-              <span className="block text-xs leading-tight text-neutral-500">Learner</span>
-            </span>
-            <ChevronDownIcon className="hidden h-4 w-4 text-neutral-400 sm:block" />
-          </button>
         </div>
       </div>
 
