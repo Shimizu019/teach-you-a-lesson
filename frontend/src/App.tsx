@@ -67,11 +67,6 @@ export default function App() {
   }, [theme])
 
   const isStudent = role === 'student'
-  const studentFullName = studentProfile
-    ? [studentProfile.firstName, studentProfile.middleName, studentProfile.lastName]
-        .filter(Boolean)
-        .join(' ')
-    : null
 
   const handleSelectNav = (label: string) => {
     setActiveNav(label)
@@ -140,6 +135,9 @@ export default function App() {
     email: string
     password: string
     role: Role
+    department?: string
+    grade?: string
+    section?: string
   }) => {
     setRole(values.role)
     if (values.role === 'student') {
@@ -147,8 +145,8 @@ export default function App() {
         firstName: values.firstName,
         middleName: values.middleName,
         lastName: values.lastName,
-        section: '',
-        grade: '',
+        section: values.section ?? '',
+        grade: values.grade ?? '',
       })
     }
     setAuthMode(null)
@@ -163,9 +161,22 @@ export default function App() {
   return (
     <div className="min-h-screen bg-neutral-50">
     {authMode === 'login' ? (
-      <Login onSubmit={handleLogin} />
+      <Login
+        onSubmit={handleLogin}
+        onSwitchMode={setAuthMode}
+        onExit={() => setAuthMode(null)}
+      />
     ) : authMode === 'register' ? (
-      <Register onSubmit={handleRegister} />
+      <Register
+        onSubmit={handleRegister}
+        onSwitchMode={setAuthMode}
+        onExit={() => setAuthMode(null)}
+      />
+    ) : isStudent && !studentProfile ? (
+      // Student registration renders standalone — outside the dashboard shell —
+      // so the form never appears alongside the sidebar, header, role switcher,
+      // sign-in button, or learner profile.
+      <StudentRegistration onSubmit={handleRegisterStudent} />
     ) : (
       <>
         <Sidebar
@@ -174,7 +185,6 @@ export default function App() {
           activeItem={activeNav}
           onSelectItem={handleSelectNav}
           role={role}
-          studentName={isStudent ? studentFullName : null}
           onAuthModeChange={setAuthMode}
         />
         <div className="lg:pl-64">
@@ -187,9 +197,7 @@ export default function App() {
             onAuthModeChange={setAuthMode}
           />
           <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-            {isStudent && !studentProfile ? (
-              <StudentRegistration onSubmit={handleRegisterStudent} />
-            ) : activeNav === 'Dashboard' ? (
+            {activeNav === 'Dashboard' ? (
               <Dashboard
                 searchQuery={searchQuery}
                 onClearSearch={() => setSearchQuery('')}
