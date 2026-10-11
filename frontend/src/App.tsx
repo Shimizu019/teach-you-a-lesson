@@ -1,6 +1,10 @@
 // App — dashboard layout shell (sidebar + header + content).
 // Frontend-only prototype: local UI state, no router, no backend.
 //
+// Access control: when there is no authenticated session the standalone
+// AuthGateway (Login / Register / Admin login) is shown instead of the shell.
+// The role always comes from the session — there is no preview-role control.
+//
 import { useEffect, useState } from 'react'
 import PlaceholderView from './components/common/PlaceholderView'
 import Header from './components/layout/Header'
@@ -15,12 +19,13 @@ import StudentClassroomView from './features/classrooms/StudentClassroomView'
 import StudentClassrooms from './features/classrooms/StudentClassrooms'
 import CLASSES from './features/classrooms/mockData'
 import type { Classroom } from './features/classrooms/types'
-import StudentRegistration from './features/students/StudentRegistration'
 import StudentProfile from './features/students/StudentProfile'
-import type { StudentProfile as StudentProfileData } from './features/students/types'
 import Settings from './features/settings/Settings'
-import Login from './features/auth/components/Login'
-import Register from './features/auth/components/Register'
+import AdminDashboard from './features/admin/AdminDashboard'
+import type { StudentProfile as StudentProfileData } from './features/students/types'
+import { useAuth } from './features/auth/useAuth'
+import AuthGateway from './features/auth/AuthGateway'
+import AuthRoute from './features/auth/AuthRoute'
 import {
   DEFAULT_TEACHER_ACCOUNT,
   type AccountValues,
@@ -28,29 +33,23 @@ import {
   type Theme,
 } from './features/settings/types'
 
-type Role = 'teacher' | 'student'
-type AuthMode = 'login' | 'register' | null
-
 export default function App() {
+  const { user, logout } = useAuth()
+
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeNav, setActiveNav] = useState('Dashboard')
   const [searchQuery, setSearchQuery] = useState('')
   const [openClassId, setOpenClassId] = useState<string | undefined>(undefined)
 
-  // Role foundation — all frontend-only, no auth/backend.
-  const [role, setRole] = useState<Role>('teacher')
-  const [studentProfile, setStudentProfile] = useState<StudentProfileData | null>(null)
+  // Classroom state (frontend-only).
   const [classrooms, setClassrooms] = useState<Classroom[]>(CLASSES)
   const [joinedClassIds, setJoinedClassIds] = useState<string[]>([])
 
-  // Settings state — theme, language and saved accounts (frontend-only).
+  // Settings state (frontend-only).
   const [theme, setTheme] = useState<Theme>('light')
   const [language, setLanguage] = useState<Language>('English')
   const [teacherAccount, setTeacherAccount] = useState<AccountValues>(DEFAULT_TEACHER_ACCOUNT)
   const [studentAccount, setStudentAccount] = useState<AccountValues | null>(null)
-
-  // Auth mode — shows Login/Register over the dashboard shell.
-  const [authMode, setAuthMode] = useState<AuthMode>(null)
 
   // Apply the selected theme to <html>; "system" follows the OS preference.
   useEffect(() => {
@@ -66,7 +65,31 @@ export default function App() {
     return () => mediaQuery.removeEventListener('change', applyTheme)
   }, [theme])
 
+  // No session -> standalone authentication (never inside the dashboard shell).
+  if (!user) {
+    return <AuthGateway />
+  }
+
+  // Administrators get their own shell + dashboard.
+  if (user.role === 'admin') {
+    return <AdminDashboard user={user} onLogout={logout} />
+  }
+
+  const role: 'teacher' | 'student' = user.role
   const isStudent = role === 'student'
+
+  // Derive the student profile from the authenticated session so the existing
+  // StudentProfile view keeps working without a separate registration flow.
+  const studentProfile: StudentProfileData | null =
+    isStudent && user.role === 'student'
+      ? {
+          firstName: user.firstName,
+          middleName: user.middleName,
+          lastName: user.lastName,
+          section: user.section,
+          grade: user.grade,
+        }
+      : null
 
   const handleSelectNav = (label: string) => {
     setActiveNav(label)
@@ -77,32 +100,6 @@ export default function App() {
     setOpenClassId(id)
     setActiveNav('Classroom')
     setSidebarOpen(false)
-  }
-
-  const handleRoleChange = (nextRole: Role) => {
-    if (nextRole === role) return
-    setRole(nextRole)
-    setActiveNav('Dashboard')
-    setOpenClassId(undefined)
-    setSearchQuery('')
-  }
-
-  const handleRegisterStudent = (profile: StudentProfileData) => {
-    setStudentProfile(profile)
-    const localPart = `${profile.firstName}.${profile.lastName}`
-      .toLowerCase()
-      .replace(/[^a-z0-9.]+/g, '')
-      .replace(/^\.+|\.+$/g, '')
-    setStudentAccount({
-      name: [profile.firstName, profile.middleName, profile.lastName]
-        .filter(Boolean)
-        .join(' '),
-      displayName: profile.firstName,
-      email: localPart
-        ? `${localPart}@student.teachyoualesson.edu`
-        : 'student@teachyoualesson.edu',
-    })
-    setActiveNav('Profile')
   }
 
   const handleJoinClass = (id: string) => {
@@ -121,38 +118,6 @@ export default function App() {
     else setTeacherAccount(values)
   }
 
-  const handleLogin = (values: { email: string; password: string; role: Role }) => {
-    setRole(values.role)
-    setStudentProfile(null)
-    setAuthMode(null)
-    setActiveNav('Dashboard')
-  }
-
-  const handleRegister = (values: {
-    firstName: string
-    middleName: string
-    lastName: string
-    email: string
-    password: string
-    role: Role
-    department?: string
-    grade?: string
-    section?: string
-  }) => {
-    setRole(values.role)
-    if (values.role === 'student') {
-      setStudentProfile({
-        firstName: values.firstName,
-        middleName: values.middleName,
-        lastName: values.lastName,
-        section: values.section ?? '',
-        grade: values.grade ?? '',
-      })
-    }
-    setAuthMode(null)
-    setActiveNav('Dashboard')
-  }
-
   const openStudentClass =
     openClassId && joinedClassIds.includes(openClassId)
       ? classrooms.find((entry) => entry.id === openClassId)
@@ -160,48 +125,27 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-    {authMode === 'login' ? (
-      <Login
-        onSubmit={handleLogin}
-        onSwitchMode={setAuthMode}
-        onExit={() => setAuthMode(null)}
+      <Sidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        activeItem={activeNav}
+        onSelectItem={handleSelectNav}
+        role={role}
+        user={user}
+        onLogout={logout}
       />
-    ) : authMode === 'register' ? (
-      <Register
-        onSubmit={handleRegister}
-        onSwitchMode={setAuthMode}
-        onExit={() => setAuthMode(null)}
-      />
-    ) : isStudent && !studentProfile ? (
-      // Student registration renders standalone — outside the dashboard shell —
-      // so the form never appears alongside the sidebar, header, role switcher,
-      // sign-in button, or learner profile.
-      <StudentRegistration onSubmit={handleRegisterStudent} />
-    ) : (
-      <>
-        <Sidebar
-          open={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          activeItem={activeNav}
-          onSelectItem={handleSelectNav}
-          role={role}
-          onAuthModeChange={setAuthMode}
+      <div className="lg:pl-64">
+        <Header
+          onMenuToggle={() => setSidebarOpen((value) => !value)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          user={user}
+          onLogout={logout}
         />
-        <div className="lg:pl-64">
-          <Header
-            onMenuToggle={() => setSidebarOpen((value) => !value)}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            role={role}
-            onRoleChange={handleRoleChange}
-            onAuthModeChange={setAuthMode}
-          />
-          <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <AuthRoute allow={[role]}>
             {activeNav === 'Dashboard' ? (
-              <Dashboard
-                searchQuery={searchQuery}
-                onClearSearch={() => setSearchQuery('')}
-              />
+              <Dashboard searchQuery={searchQuery} onClearSearch={() => setSearchQuery('')} />
             ) : activeNav === 'My Lessons' ? (
               <MyLessons />
             ) : activeNav === 'Subjects' ? (
@@ -245,15 +189,12 @@ export default function App() {
             ) : activeNav === 'Profile' && isStudent && studentProfile ? (
               <StudentProfile profile={studentProfile} />
             ) : (
-              <PlaceholderView
-                title={activeNav}
-                onBack={() => setActiveNav('Dashboard')}
-              />
+              <PlaceholderView title={activeNav} onBack={() => setActiveNav('Dashboard')} />
             )}
-          </main>
-        </div>
-      </>
-    )}
+          </AuthRoute>
+        </main>
+      </div>
     </div>
   )
 }
+
