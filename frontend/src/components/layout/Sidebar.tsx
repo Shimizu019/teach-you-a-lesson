@@ -1,5 +1,7 @@
-// Sidebar — application navigation with desktop/mobile behavior.
+// Sidebar - application navigation with desktop/mobile behavior.
 // Desktop: fixed visible sidebar. Mobile/tablet: off-canvas drawer.
+// Navigation is role-appropriate; the footer shows the authenticated user and
+// a working logout action (no sign-in / preview-role controls).
 //
 import type { ComponentType } from 'react'
 import {
@@ -11,6 +13,7 @@ import {
   SettingsIcon,
   UserIcon,
 } from '../common/Icons'
+import type { SessionUser } from '../../features/auth/types'
 
 type IconType = ComponentType<{ className?: string }>
 
@@ -72,7 +75,8 @@ interface SidebarProps {
   activeItem: string
   onSelectItem: (label: string) => void
   role: 'teacher' | 'student'
-  onAuthModeChange: (mode: 'login' | 'register') => void
+  user: SessionUser
+  onLogout: () => void
 }
 
 export default function Sidebar({
@@ -81,11 +85,16 @@ export default function Sidebar({
   activeItem,
   onSelectItem,
   role,
-  onAuthModeChange,
+  user,
+  onLogout,
 }: SidebarProps) {
   // Students get an extra Profile item; teacher-only controls are rendered elsewhere.
   const navItems: NavItem[] =
     role === 'student' ? [...primaryNav, { label: 'Profile', icon: UserIcon }] : primaryNav
+
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ')
+  const initial = (user.firstName || user.email || '?').charAt(0).toUpperCase()
+
   return (
     <>
       {open && (
@@ -143,25 +152,24 @@ export default function Sidebar({
         </nav>
 
         <div className="flex-none border-t border-neutral-200 p-3">
+          <div className="flex items-center gap-3 rounded-xl px-2 py-2">
+            <span className="grid h-9 w-9 flex-none place-items-center rounded-full bg-indigo-600 text-sm font-semibold text-white">
+              {initial}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-neutral-900">{fullName}</p>
+              <p className="truncate text-xs capitalize text-neutral-500">{user.role}</p>
+            </div>
+          </div>
           <button
             type="button"
-            aria-label="Sign in (demo mode)"
-            onClick={() => onAuthModeChange('login')}
-            className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors duration-150 hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            onClick={onLogout}
+            className="mt-1 w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-neutral-600 transition-colors duration-150 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
-            <span className="grid h-9 w-9 flex-none place-items-center rounded-full bg-indigo-600 text-white ring-2 ring-indigo-100">
-              <UserIcon className="h-5 w-5" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-medium text-neutral-900">Sign in</span>
-              <span className="block truncate text-xs text-neutral-500">
-                Demo mode — no account
-              </span>
-            </span>
+            Log out
           </button>
         </div>
       </aside>
     </>
   )
 }
-
