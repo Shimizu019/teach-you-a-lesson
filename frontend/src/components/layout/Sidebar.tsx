@@ -6,6 +6,7 @@
 import type { ComponentType } from 'react'
 import {
   BookOpenIcon,
+  CheckCircleIcon,
   ChartIcon,
   DashboardIcon,
   GraduationCapIcon,
@@ -26,6 +27,7 @@ const primaryNav: NavItem[] = [
   { label: 'Dashboard', icon: DashboardIcon },
   { label: 'My Lessons', icon: BookOpenIcon },
   { label: 'Subjects', icon: LayersIcon },
+  { label: 'Activities & Quizzes', icon: CheckCircleIcon },
   { label: 'Progress', icon: ChartIcon },
   { label: 'Classrooms', icon: GraduationCapIcon },
 ]
