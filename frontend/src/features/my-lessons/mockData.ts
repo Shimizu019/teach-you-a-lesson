@@ -1,6 +1,7 @@
 // mockData.ts — static lesson data for the My Lessons prototype.
 // Frontend-only; no backend, no persistence.
 //
+import { isoDaysFromNow } from '../../utils/dates'
 
 export type LessonStatus = 'In Progress' | 'Completed' | 'Not Started'
 
@@ -23,6 +24,8 @@ export interface MyLesson {
   statusClass: string
   studyTime: string
   moduleInfo: string
+  /** Local ISO date the lesson is scheduled/uploaded for. */
+  assignedOn: string
 }
 
 export const myLessons: MyLesson[] = [
@@ -37,6 +40,7 @@ export const myLessons: MyLesson[] = [
     statusClass: 'bg-indigo-50 text-indigo-700',
     studyTime: '45 min',
     moduleInfo: 'Module 2 · Algebra',
+    assignedOn: isoDaysFromNow(0),
   },
   {
     subject: 'Mathematics',
@@ -49,6 +53,7 @@ export const myLessons: MyLesson[] = [
     statusClass: 'bg-emerald-50 text-emerald-700',
     studyTime: '35 min',
     moduleInfo: 'Module 1 · Algebra',
+    assignedOn: isoDaysFromNow(-2),
   },
   {
     subject: 'Mathematics',
@@ -61,6 +66,7 @@ export const myLessons: MyLesson[] = [
     statusClass: 'bg-neutral-100 text-neutral-600',
     studyTime: '50 min',
     moduleInfo: 'Module 3 · Statistics',
+    assignedOn: isoDaysFromNow(1),
   },
   {
     subject: 'Science',
@@ -73,6 +79,7 @@ export const myLessons: MyLesson[] = [
     statusClass: 'bg-indigo-50 text-indigo-700',
     studyTime: '40 min',
     moduleInfo: 'Unit 2 · Biology',
+    assignedOn: isoDaysFromNow(0),
   },
   {
     subject: 'Science',
@@ -85,6 +92,7 @@ export const myLessons: MyLesson[] = [
     statusClass: 'bg-emerald-50 text-emerald-700',
     studyTime: '30 min',
     moduleInfo: 'Unit 1 · Astronomy',
+    assignedOn: isoDaysFromNow(-1),
   },
   {
     subject: 'English',
@@ -97,6 +105,7 @@ export const myLessons: MyLesson[] = [
     statusClass: 'bg-indigo-50 text-indigo-700',
     studyTime: '55 min',
     moduleInfo: 'Unit 3 · Writing',
+    assignedOn: isoDaysFromNow(0),
   },
   {
     subject: 'English',
@@ -109,6 +118,7 @@ export const myLessons: MyLesson[] = [
     statusClass: 'bg-neutral-100 text-neutral-600',
     studyTime: '25 min',
     moduleInfo: 'Unit 1 · Reading',
+    assignedOn: isoDaysFromNow(1),
   },
   {
     subject: 'Computer / IT',
@@ -121,6 +131,7 @@ export const myLessons: MyLesson[] = [
     statusClass: 'bg-indigo-50 text-indigo-700',
     studyTime: '60 min',
     moduleInfo: 'Module 1 · Fundamentals',
+    assignedOn: isoDaysFromNow(-1),
   },
   {
     subject: 'Computer / IT',
@@ -133,6 +144,7 @@ export const myLessons: MyLesson[] = [
     statusClass: 'bg-emerald-50 text-emerald-700',
     studyTime: '40 min',
     moduleInfo: 'Module 2 · Web',
+    assignedOn: isoDaysFromNow(-3),
   },
   {
     subject: 'Computer / IT',
@@ -145,5 +157,6 @@ export const myLessons: MyLesson[] = [
     statusClass: 'bg-neutral-100 text-neutral-600',
     studyTime: '30 min',
     moduleInfo: 'Module 1 · Programming',
+    assignedOn: isoDaysFromNow(2),
   },
 ]
