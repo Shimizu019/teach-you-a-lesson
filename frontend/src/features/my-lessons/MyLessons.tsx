@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 import LessonCard from '../../components/common/LessonCard'
 import PlaceholderDialog from '../../components/common/PlaceholderDialog'
 import { SearchIcon } from '../../components/common/Icons'
+import { formatShortDate, isToday } from '../../utils/dates'
 import {
   actionLabels,
   myLessons,
@@ -13,30 +14,45 @@ import {
   type StatusFilter,
 } from './mockData'
 
+// "Today" is the device's current local date. Captured once at module scope so
+// the label is stable and contains no impure call inside render.
+const TODAY_ISO_LABEL = formatShortDate(new Date().toISOString().slice(0, 10))
+
 interface DialogState {
   title: string
   description: string
 }
 
-export default function MyLessons() {
+interface MyLessonsProps {
+  /** When true the list is restricted to lessons dated today. */
+  todayOnly?: boolean
+}
+
+export default function MyLessons({ todayOnly = false }: MyLessonsProps) {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<StatusFilter>('All')
   const [dialog, setDialog] = useState<DialogState | null>(null)
 
+  // "Today" always means the device's current local date.
+  const lessonsInScope = useMemo(
+    () => (todayOnly ? myLessons.filter((lesson) => isToday(lesson.assignedOn)) : myLessons),
+    [todayOnly],
+  )
+
   const counts = useMemo<Record<StatusFilter, number>>(() => {
     const totals: Record<StatusFilter, number> = {
-      All: myLessons.length,
+      All: lessonsInScope.length,
       'In Progress': 0,
       Completed: 0,
       'Not Started': 0,
     }
-    for (const lesson of myLessons) totals[lesson.status] += 1
+    for (const lesson of lessonsInScope) totals[lesson.status] += 1
     return totals
-  }, [])
+  }, [lessonsInScope])
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
-    return myLessons.filter((lesson) => {
+    return lessonsInScope.filter((lesson) => {
       const matchesStatus = status === 'All' || lesson.status === status
       const matchesQuery =
         query.length === 0 ||
@@ -45,9 +61,9 @@ export default function MyLessons() {
           .includes(query)
       return matchesStatus && matchesQuery
     })
-  }, [search, status])
+  }, [search, status, lessonsInScope])
 
-  const filtersActive = search.trim().length > 0 || status !== 'All'
+  const filtersActive = search.trim().length > 0 || status !== 'All' || todayOnly
 
   const resetFilters = () => {
     setSearch('')
@@ -65,11 +81,18 @@ export default function MyLessons() {
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">
-          My Lessons
+          {todayOnly ? "Today's Lessons" : 'My Lessons'}
         </h1>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-neutral-500">
-          Continue your lessons, review completed topics, and keep your learning progress moving.
+          {todayOnly
+            ? `Lessons dated ${TODAY_ISO_LABEL} — only today's records are shown.`
+            : 'Continue your lessons, review completed topics, and keep your learning progress moving.'}
         </p>
+        {todayOnly && (
+          <p className="mt-1 text-xs text-neutral-500">
+            {lessonsInScope.length} of {myLessons.length} lessons are dated today.
+          </p>
+        )}
       </div>
 
       {/* Search + status filters */}
@@ -129,7 +152,7 @@ export default function MyLessons() {
             onClick={resetFilters}
             className="rounded-md text-xs font-medium text-indigo-600 transition-colors duration-150 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
-            Reset filters
+            {todayOnly ? 'Show all lessons' : 'Reset filters'}
           </button>
         )}
       </div>
@@ -141,6 +164,7 @@ export default function MyLessons() {
             <LessonCard
               key={lesson.title}
               {...lesson}
+              assignedOn={lesson.assignedOn}
               actionLabel={actionLabels[lesson.status]}
               onContinue={() => openLesson(lesson)}
             />
