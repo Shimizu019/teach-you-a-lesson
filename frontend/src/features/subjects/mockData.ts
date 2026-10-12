@@ -29,6 +29,8 @@ export interface Subject {
   completedLessons: number
   iconChipClass: string
   icon: IconType
+  // Teacher handling the subject (demo data — there is no staff roster yet).
+  teacher: string
 }
 
 export const subjects: Subject[] = [
@@ -42,6 +44,7 @@ export const subjects: Subject[] = [
     completedLessons: 9,
     iconChipClass: 'bg-indigo-50 text-indigo-600',
     icon: CalculatorIcon,
+    teacher: 'Teacher Benju',
   },
   {
     name: 'Science',
@@ -52,6 +55,7 @@ export const subjects: Subject[] = [
     completedLessons: 6,
     iconChipClass: 'bg-emerald-50 text-emerald-600',
     icon: FlaskIcon,
+    teacher: 'Teacher Ana',
   },
   {
     name: 'English',
@@ -62,6 +66,7 @@ export const subjects: Subject[] = [
     completedLessons: 7,
     iconChipClass: 'bg-amber-50 text-amber-600',
     icon: BookIcon,
+    teacher: 'Teacher Maria',
   },
   {
     name: 'Filipino',
@@ -72,6 +77,7 @@ export const subjects: Subject[] = [
     completedLessons: 3,
     iconChipClass: 'bg-rose-50 text-rose-600',
     icon: BookOpenIcon,
+    teacher: 'Teacher Jose',
   },
   {
     name: 'Computer Science',
@@ -83,6 +89,7 @@ export const subjects: Subject[] = [
     completedLessons: 4,
     iconChipClass: 'bg-sky-50 text-sky-600',
     icon: CodeIcon,
+    teacher: 'Teacher Benju',
   },
   {
     name: 'Web Development',
@@ -93,6 +100,7 @@ export const subjects: Subject[] = [
     completedLessons: 5,
     iconChipClass: 'bg-violet-50 text-violet-600',
     icon: LayersIcon,
+    teacher: 'Teacher Carlo',
   },
   {
     name: 'Information Technology',
@@ -103,6 +111,7 @@ export const subjects: Subject[] = [
     completedLessons: 2,
     iconChipClass: 'bg-cyan-50 text-cyan-600',
     icon: SettingsIcon,
+    teacher: 'Teacher Grace',
   },
   {
     name: 'Physics',
@@ -113,5 +122,6 @@ export const subjects: Subject[] = [
     completedLessons: 1,
     iconChipClass: 'bg-teal-50 text-teal-600',
     icon: ChartIcon,
+    teacher: 'Teacher Ana',
   },
 ]
