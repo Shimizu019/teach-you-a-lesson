@@ -22,6 +22,7 @@ import type { Classroom } from './features/classrooms/types'
 import StudentProfile from './features/students/StudentProfile'
 import Settings from './features/settings/Settings'
 import AdminDashboard from './features/admin/AdminDashboard'
+import ActivitiesQuizzes from './features/assignments/ActivitiesQuizzes'
 import type { StudentProfile as StudentProfileData } from './features/students/types'
 import { useAuth } from './features/auth/useAuth'
 import AuthGateway from './features/auth/AuthGateway'
@@ -40,6 +41,9 @@ export default function App() {
   const [activeNav, setActiveNav] = useState('Dashboard')
   const [searchQuery, setSearchQuery] = useState('')
   const [openClassId, setOpenClassId] = useState<string | undefined>(undefined)
+  // Set when the dashboard's "Today's Lessons" card is used, so My Lessons can
+  // open filtered to today and the sidebar selection stays consistent.
+  const [todayLessonsOnly, setTodayLessonsOnly] = useState(false)
 
   // Classroom state (frontend-only).
   const [classrooms, setClassrooms] = useState<Classroom[]>(CLASSES)
@@ -94,6 +98,13 @@ export default function App() {
   const handleSelectNav = (label: string) => {
     setActiveNav(label)
     setSidebarOpen(false)
+    // Only the dashboard's Today's Lessons card opts into the today filter.
+    if (label !== 'My Lessons') setTodayLessonsOnly(false)
+  }
+
+  const handleOpenTodaysLessons = () => {
+    setTodayLessonsOnly(true)
+    handleSelectNav('My Lessons')
   }
 
   const handleOpenClass = (id: string) => {
@@ -145,9 +156,16 @@ export default function App() {
         <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
           <AuthRoute allow={[role]}>
             {activeNav === 'Dashboard' ? (
-              <Dashboard searchQuery={searchQuery} onClearSearch={() => setSearchQuery('')} />
+              <Dashboard
+                searchQuery={searchQuery}
+                onClearSearch={() => setSearchQuery('')}
+                onNavigate={handleSelectNav}
+                onOpenTodaysLessons={handleOpenTodaysLessons}
+              />
             ) : activeNav === 'My Lessons' ? (
-              <MyLessons />
+              <MyLessons todayOnly={todayLessonsOnly} />
+            ) : activeNav === 'Activities & Quizzes' ? (
+              <ActivitiesQuizzes />
             ) : activeNav === 'Subjects' ? (
               <Subjects />
             ) : activeNav === 'Progress' ? (
