@@ -33,6 +33,8 @@ import AuthGateway from './features/auth/AuthGateway'
 import AuthRoute from './features/auth/AuthRoute'
 import {
   DEFAULT_TEACHER_ACCOUNT,
+  readStoredTheme,
+  writeStoredTheme,
   type AccountValues,
   type Language,
   type Theme,
@@ -58,14 +60,17 @@ export default function App() {
   const [openActivity, setOpenActivity] = useState<Activity | null>(null)
   const [openQuiz, setOpenQuiz] = useState<Quiz | null>(null)
 
-  // Settings state (frontend-only).
-  const [theme, setTheme] = useState<Theme>('light')
+  // Settings state (frontend-only). The theme is persisted to localStorage so
+  // the selection survives a refresh and stays consistent between the dashboard
+  // and the standalone authentication screens after logout.
+  const [theme, setTheme] = useState<Theme>(() => readStoredTheme())
   const [language, setLanguage] = useState<Language>('English')
   const [teacherAccount, setTeacherAccount] = useState<AccountValues>(DEFAULT_TEACHER_ACCOUNT)
   const [studentAccount, setStudentAccount] = useState<AccountValues | null>(null)
 
   // Apply the selected theme to <html>; "system" follows the OS preference.
   useEffect(() => {
+    writeStoredTheme(theme)
     const root = document.documentElement
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const applyTheme = () => {
