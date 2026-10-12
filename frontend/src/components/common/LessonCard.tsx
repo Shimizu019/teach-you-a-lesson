@@ -4,6 +4,7 @@
 //
 import { ArrowRightIcon, ClockIcon } from './Icons'
 import ProgressBar from './ProgressBar'
+import { formatShortDate, isToday } from '../../utils/dates'
 
 interface LessonCardProps {
   subject: string
@@ -17,6 +18,8 @@ interface LessonCardProps {
   studyTime?: string
   moduleInfo?: string
   actionLabel?: string
+  /** Local ISO date the lesson is scheduled for; adds a "Today" badge. */
+  assignedOn?: string
 }
 
 export default function LessonCard({
@@ -31,8 +34,10 @@ export default function LessonCard({
   studyTime,
   moduleInfo,
   actionLabel,
+  assignedOn,
 }: LessonCardProps) {
   const label = actionLabel ?? 'Continue'
+  const scheduledToday = assignedOn ? isToday(assignedOn) : false
   return (
     <article className="flex h-full flex-col rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition-all duration-150 hover:border-neutral-300 hover:shadow-md">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -41,6 +46,17 @@ export default function LessonCard({
         >
           {subject}
         </span>
+        {scheduledToday ? (
+          <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-amber-700">
+            Today
+          </span>
+        ) : (
+          assignedOn && (
+            <span className="inline-flex rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-semibold text-neutral-600">
+              {formatShortDate(assignedOn)}
+            </span>
+          )
+        )}
         {status && (
           <span
             className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${statusClass ?? 'bg-neutral-100 text-neutral-600'}`}
