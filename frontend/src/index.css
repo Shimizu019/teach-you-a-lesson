@@ -93,4 +93,22 @@ body {
 .dark .text-sky-700 { color: #7dd3fc; }
 .dark .text-teal-600 { color: #5eead4; }
 .dark .text-violet-600 { color: #c4b5fd; }
+.dark .text-red-600 { color: #fca5a5; }
+
+/* ------------------------------------------------------------------------
+   Standalone authentication screens (Login / Register / Admin login).
+   These render outside the dashboard shell but still honour the selected
+   theme via the same `.dark` class on <html>. A few indigo/neutral/red
+   tokens used by the auth components are NOT re-mapped by the `.dark`
+   variable block above, so they kept their light-theme values on the flipped
+   (dark) surfaces — e.g. the "Prototype." note rendered dark indigo text on
+   the dark indigo chip. Lighten them so notes, helper text, navigation links
+   and required-field markers stay readable. Light theme is untouched because
+   these rules only apply under `.dark`.
+   ------------------------------------------------------------------------ */
+.dark .text-indigo-900 { color: #e0e7ff; }
+.dark .hover\:text-indigo-800:hover { color: #c7d2fe; }
+.dark .text-neutral-800 { color: var(--color-neutral-600); }
+.dark .hover\:text-neutral-800:hover { color: #fafafa; }
+.dark .text-red-600 { color: #fca5a5; }
 
