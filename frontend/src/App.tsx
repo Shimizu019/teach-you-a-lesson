@@ -23,6 +23,10 @@ import StudentProfile from './features/students/StudentProfile'
 import Settings from './features/settings/Settings'
 import AdminDashboard from './features/admin/AdminDashboard'
 import ActivitiesQuizzes from './features/assignments/ActivitiesQuizzes'
+import ActivityDetail from './features/assignments/ActivityDetail'
+import QuizTake from './features/assignments/QuizTake'
+import { AssignmentsProvider } from './features/assignments/AssignmentsContext'
+import type { Activity, Quiz } from './features/assignments/types'
 import type { StudentProfile as StudentProfileData } from './features/students/types'
 import { useAuth } from './features/auth/useAuth'
 import AuthGateway from './features/auth/AuthGateway'
@@ -48,6 +52,11 @@ export default function App() {
   // Classroom state (frontend-only).
   const [classrooms, setClassrooms] = useState<Classroom[]>(CLASSES)
   const [joinedClassIds, setJoinedClassIds] = useState<string[]>([])
+
+  // Assignments drill-down state (frontend-only; session data lives in
+  // AssignmentsProvider so the list, detail, and quiz views share it).
+  const [openActivity, setOpenActivity] = useState<Activity | null>(null)
+  const [openQuiz, setOpenQuiz] = useState<Quiz | null>(null)
 
   // Settings state (frontend-only).
   const [theme, setTheme] = useState<Theme>('light')
@@ -100,6 +109,9 @@ export default function App() {
     setSidebarOpen(false)
     // Only the dashboard's Today's Lessons card opts into the today filter.
     if (label !== 'My Lessons') setTodayLessonsOnly(false)
+    // Leaving the assignments area always returns to the list view next time.
+    setOpenActivity(null)
+    setOpenQuiz(null)
   }
 
   const handleOpenTodaysLessons = () => {
@@ -111,6 +123,23 @@ export default function App() {
     setOpenClassId(id)
     setActiveNav('Classroom')
     setSidebarOpen(false)
+  }
+
+  const handleOpenActivity = (activity: Activity) => {
+    setOpenQuiz(null)
+    setOpenActivity(activity)
+  }
+
+  const handleOpenQuiz = (quiz: Quiz) => {
+    setOpenActivity(null)
+    setOpenQuiz(quiz)
+    // Also used from the dashboard, so make sure the assignments area is active.
+    setActiveNav('Activities & Quizzes')
+  }
+
+  const handleBackToAssignments = () => {
+    setOpenActivity(null)
+    setOpenQuiz(null)
   }
 
   const handleJoinClass = (id: string) => {
@@ -135,7 +164,8 @@ export default function App() {
       : undefined
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <AssignmentsProvider>
+      <div className="min-h-screen bg-neutral-50">
       <Sidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -161,11 +191,21 @@ export default function App() {
                 onClearSearch={() => setSearchQuery('')}
                 onNavigate={handleSelectNav}
                 onOpenTodaysLessons={handleOpenTodaysLessons}
+                onOpenQuiz={handleOpenQuiz}
               />
             ) : activeNav === 'My Lessons' ? (
               <MyLessons todayOnly={todayLessonsOnly} />
             ) : activeNav === 'Activities & Quizzes' ? (
-              <ActivitiesQuizzes />
+              openActivity ? (
+                <ActivityDetail activity={openActivity} onBack={handleBackToAssignments} />
+              ) : openQuiz ? (
+                <QuizTake quiz={openQuiz} onBack={handleBackToAssignments} />
+              ) : (
+                <ActivitiesQuizzes
+                  onOpenActivity={handleOpenActivity}
+                  onOpenQuiz={handleOpenQuiz}
+                />
+              )
             ) : activeNav === 'Subjects' ? (
               <Subjects />
             ) : activeNav === 'Progress' ? (
@@ -212,7 +252,8 @@ export default function App() {
           </AuthRoute>
         </main>
       </div>
-    </div>
+      </div>
+    </AssignmentsProvider>
   )
 }
 
