@@ -1,176 +1,138 @@
 // mockData.ts — static mock data for the dashboard UI prototype.
 // No real data, no backend, no persistence.
 //
+// Data that has a proper feature owner lives with that feature and is imported
+// from here for display only, so counts and lists can never disagree:
+//   subjects  -> features/subjects/mockData.ts   (includes teacher names)
+//   lessons   -> features/my-lessons/mockData.ts  (includes assignment dates)
+//   quizzes   -> features/assignments/mockData.ts
+//
 import type { ComponentType } from 'react'
 import {
-  BookIcon,
-  BookOpenIcon,
-  CalculatorIcon,
   CheckCircleIcon,
-  ClockIcon,
-  CodeIcon,
   EyeIcon,
-  FlaskIcon,
   FlameIcon,
   PlayIcon,
   TrophyIcon,
 } from '../../components/common/Icons'
+import { isoDaysFromNow, localTimestamp } from '../../utils/dates'
 
 type IconType = ComponentType<{ className?: string }>
 
-export interface SummaryStat {
-  label: string
-  value: string
-  hint: string
-  hintClass: string
-  iconChipClass: string
-  icon: IconType
-}
-
-export interface LessonData {
-  subject: string
-  subjectClass: string
-  title: string
-  description: string
-  progress: number
-}
-
-export interface SubjectData {
-  name: string
-  description: string
-  lessonCount: number
-  iconChipClass: string
-  icon: IconType
-}
-
 export interface ActivityData {
+  id: string
   title: string
   detail: string
   time: string
+  /** ISO timestamp, used to sort the feed chronologically (newest first). */
+  timestamp: string
+  /** Related subject, when the event belongs to one. */
+  subject?: string
   iconChipClass: string
   icon: IconType
 }
 
-export const summaryStats: SummaryStat[] = [
+//
+// Recent Activity — classroom events built from the same demo records used
+// elsewhere (lesson uploads, published quizzes, assigned activities, attendance).
+// Timestamps are demo values relative to the day the app is opened. These are
+// NOT live system events: there is no real-time or synchronization layer.
+//
+/**
+ * Recent Activity feed. Exported under an explicit name so it is never confused
+ * with the activity *assignments* owned by features/assignments/mockData.ts.
+ */
+export const activityFeed: ActivityData[] = [
   {
-    label: 'Lessons Completed',
-    value: '24',
-    hint: '+3 this week',
-    hintClass: 'text-emerald-600',
-    iconChipClass: 'bg-emerald-50 text-emerald-600',
-    icon: CheckCircleIcon,
-  },
-  {
-    label: 'Lessons In Progress',
-    value: '6',
-    hint: '2 due today',
-    hintClass: 'text-amber-600',
-    iconChipClass: 'bg-amber-50 text-amber-600',
-    icon: BookOpenIcon,
-  },
-  {
-    label: 'Study Time',
-    value: '18.5h',
-    hint: '+2.4h this week',
-    hintClass: 'text-emerald-600',
-    iconChipClass: 'bg-sky-50 text-sky-600',
-    icon: ClockIcon,
-  },
-  {
-    label: 'Current Streak',
-    value: '12 days',
-    hint: 'Personal best: 15 days',
-    hintClass: 'text-neutral-500',
-    iconChipClass: 'bg-amber-50 text-amber-600',
-    icon: FlameIcon,
-  },
-]
-
-export const lessons: LessonData[] = [
-  {
+    id: 'feed-lesson-1',
+    title: 'New lesson uploaded',
+    detail: 'Quadratic Equations',
     subject: 'Mathematics',
-    subjectClass: 'bg-indigo-50 text-indigo-700',
-    title: 'Quadratic Equations',
-    description:
-      'Solve quadratic equations using factoring, completing the square, and the quadratic formula.',
-    progress: 72,
-  },
-  {
-    subject: 'Science',
-    subjectClass: 'bg-emerald-50 text-emerald-700',
-    title: 'Photosynthesis: Energy in Plants',
-    description:
-      'Understand how plants convert sunlight into chemical energy and why it matters for life on Earth.',
-    progress: 45,
-  },
-  {
-    subject: 'Computer / IT',
-    subjectClass: 'bg-sky-50 text-sky-700',
-    title: 'Introduction to Data Structures',
-    description:
-      'Explore arrays, linked lists, and stacks — the building blocks of efficient programs.',
-    progress: 28,
-  },
-]
-
-export const subjects: SubjectData[] = [
-  {
-    name: 'Mathematics',
-    description: 'Numbers, algebra, and problem solving',
-    lessonCount: 14,
-    iconChipClass: 'bg-indigo-50 text-indigo-600',
-    icon: CalculatorIcon,
-  },
-  {
-    name: 'Science',
-    description: 'Life, physical, and earth sciences',
-    lessonCount: 11,
-    iconChipClass: 'bg-emerald-50 text-emerald-600',
-    icon: FlaskIcon,
-  },
-  {
-    name: 'English',
-    description: 'Reading, writing, and communication',
-    lessonCount: 9,
-    iconChipClass: 'bg-amber-50 text-amber-600',
-    icon: BookIcon,
-  },
-  {
-    name: 'Computer / IT',
-    description: 'Programming and digital skills',
-    lessonCount: 12,
-    iconChipClass: 'bg-sky-50 text-sky-600',
-    icon: CodeIcon,
-  },
-]
-
-export const activities: ActivityData[] = [
-  {
-    title: 'Completed a lesson',
-    detail: 'Quadratic Equations — Practice Set 3',
-    time: '2h ago',
-    iconChipClass: 'bg-emerald-50 text-emerald-600',
-    icon: CheckCircleIcon,
-  },
-  {
-    title: 'Started a new lesson',
-    detail: 'Introduction to Data Structures',
-    time: '5h ago',
+    time: 'Today, 8:30 AM',
+    timestamp: localTimestamp(isoDaysFromNow(0), 8, 30),
     iconChipClass: 'bg-indigo-50 text-indigo-600',
     icon: PlayIcon,
   },
   {
-    title: 'Reviewed a topic',
-    detail: 'Cell Biology — Mitosis & Meiosis',
-    time: 'Yesterday',
-    iconChipClass: 'bg-sky-50 text-sky-600',
-    icon: EyeIcon,
+    id: 'feed-quiz-1',
+    title: 'New quiz published',
+    detail: 'Photosynthesis Quiz — 8 questions',
+    subject: 'Science',
+    time: 'Today, 7:45 AM',
+    timestamp: localTimestamp(isoDaysFromNow(0), 7, 45),
+    iconChipClass: 'bg-purple-50 text-purple-600',
+    icon: CheckCircleIcon,
   },
   {
-    title: 'Achieved a learning milestone',
-    detail: '12-day study streak',
-    time: 'Yesterday',
-    iconChipClass: 'bg-amber-50 text-amber-600',
+    id: 'feed-activity-1',
+    title: 'Activity assigned',
+    detail: 'Quadratic Equations — Practice Set 4',
+    subject: 'Mathematics',
+    time: 'Yesterday, 4:15 PM',
+    timestamp: localTimestamp(isoDaysFromNow(-1), 16, 15),
+    iconChipClass: 'bg-sky-50 text-sky-600',
+    icon: PlayIcon,
+  },
+  {
+    id: 'feed-attendance-1',
+    title: 'Attendance recorded',
+    detail: 'Marked present for Computer / IT',
+    subject: 'Computer / IT',
+    time: 'Yesterday, 1:05 PM',
+    timestamp: localTimestamp(isoDaysFromNow(-1), 13, 5),
+    iconChipClass: 'bg-emerald-50 text-emerald-600',
+    icon: CheckCircleIcon,
+  },
+  {
+    id: 'feed-lesson-2',
+    title: 'Completed a lesson',
+    detail: 'Linear Equations & Inequalities',
+    subject: 'Mathematics',
+    time: '2 days ago, 6:00 PM',
+    timestamp: localTimestamp(isoDaysFromNow(-2), 18, 0),
+    iconChipClass: 'bg-emerald-50 text-emerald-600',
     icon: TrophyIcon,
   },
+  {
+    id: 'feed-review-1',
+    title: 'Reviewed a topic',
+    detail: 'Persuasive Essay Writing',
+    subject: 'English',
+    time: '2 days ago, 5:20 PM',
+    timestamp: localTimestamp(isoDaysFromNow(-2), 17, 20),
+    iconChipClass: 'bg-amber-50 text-amber-600',
+    icon: EyeIcon,
+  },
 ]
+
+//
+// Attendance — DEMONSTRATION DATA ONLY.
+// No attendance backend or persistence exists in this prototype, so these are
+// fixed demo values, not recorded classroom data. Kept separate from the
+// enrollment/learning models because attendance is its own feature.
+//
+export interface AttendanceSummary {
+  /** Consecutive days the student is shown as present (demo value). */
+  streakDays: number
+  /** Demo per-status tallies across the recorded sessions. */
+  present: number
+  absent: number
+  late: number
+  /** Total demo attendance sessions. */
+  sessions: number
+}
+
+export const attendanceSummary: AttendanceSummary = {
+  streakDays: 3,
+  present: 8,
+  absent: 1,
+  late: 0,
+  sessions: 9,
+}
+
+export const attendanceStreakIcon = FlameIcon
+
+/** Newest first, using the ISO timestamps. */
+export function sortByNewest<T extends { timestamp: string }>(items: readonly T[]): T[] {
+  return [...items].sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+}
