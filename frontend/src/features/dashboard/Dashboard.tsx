@@ -30,13 +30,9 @@ import {
 import { subjects } from '../subjects/mockData'
 import { myLessons } from '../my-lessons/mockData'
 import { formatLongDate, formatShortDate, isToday } from '../../utils/dates'
-import {
-  assignmentStatusMeta,
-  newAssignmentCount,
-  pendingQuizzes,
-  quizzes,
-  type Quiz,
-} from '../assignments/mockData'
+import { assignmentStatusMeta, PENDING_STATUSES } from '../assignments/statusMeta'
+import { useAssignments } from '../assignments/useAssignments'
+import type { Quiz } from '../assignments/types'
 
 interface DialogState {
   title: string
@@ -50,6 +46,8 @@ interface DashboardProps {
   onNavigate: (item: string) => void
   /** Opens My Lessons pre-filtered to today's records. */
   onOpenTodaysLessons: () => void
+  /** Opens a quiz in the assignments area (falls back to a dialog when omitted). */
+  onOpenQuiz?: (quiz: Quiz) => void
 }
 
 // The greeting date comes from the browser's own clock. Captured once at module
@@ -91,8 +89,17 @@ export default function Dashboard({
   onClearSearch,
   onNavigate,
   onOpenTodaysLessons,
+  onOpenQuiz,
 }: DashboardProps) {
   const [dialog, setDialog] = useState<DialogState | null>(null)
+
+  // Shared assignment session state (the same source the Activities & Quizzes
+  // list uses), so dashboard counts always match that page.
+  const { counts, getStatus, allAssignments } = useAssignments()
+  const quizItems = allAssignments.filter((item): item is Quiz => item.kind === 'quiz')
+  const pendingQuizCount = quizItems.filter((quiz) =>
+    PENDING_STATUSES.includes(getStatus(quiz.id)),
+  ).length
 
   const query = searchQuery.trim().toLowerCase()
   const isSearching = query.length > 0
@@ -101,7 +108,7 @@ export default function Dashboard({
   const enrolledSubjectCount = subjects.length
   const todaysLessons = myLessons.filter((lesson) => isToday(lesson.assignedOn))
   const todaysLessonCount = todaysLessons.length
-  const assignmentCount = newAssignmentCount
+  const assignmentCount = counts.pending
   const attendanceStreak = `${attendanceSummary.streakDays}-day streak`
 
   // --- Filtering (local, mock data only) ------------------------------------
@@ -115,8 +122,8 @@ export default function Dashboard({
     ? subjects.filter((subject) => matches(subject.name, subject.description, subject.teacher))
     : subjects
   const visibleQuizzes = isSearching
-    ? quizzes.filter((quiz) => matches(quiz.title, quiz.subject, quiz.teacher))
-    : quizzes
+    ? quizItems.filter((quiz) => matches(quiz.title, quiz.subject, quiz.teacher))
+    : quizItems
   // "Continue learning" only ever shows lessons the student has started.
   const inProgressLessons = myLessons.filter((lesson) => lesson.status === 'In Progress')
   const visibleLessons = isSearching
@@ -144,13 +151,20 @@ export default function Dashboard({
       description: `Taught by ${teacher}. The subject detail view is not implemented yet — this is a UI prototype using mock data.`,
     })
 
-  const openQuiz = (quiz: Quiz) =>
+  const openQuiz = (quiz: Quiz) => {
+    if (onOpenQuiz) {
+      onOpenQuiz(quiz)
+      return
+    }
     setDialog({
       title: quiz.title,
       description:
-        `The quiz engine is not implemented yet, so "${quiz.title}" cannot be taken here — ` +
-        `this is a UI prototype using mock data. Status shown: ${assignmentStatusMeta[quiz.status].label}.`,
+        `This quiz cannot be taken here — ` +
+        `this is a UI prototype using mock data. Status shown: ${
+          assignmentStatusMeta[getStatus(quiz.id)].label
+        }.`,
     })
+  }
 
   const openAttendance = () =>
     setDialog({
@@ -259,8 +273,8 @@ export default function Dashboard({
           hint={
             assignmentCount === 0
               ? 'Nothing new to finish'
-              : `${pendingQuizzes.length} quiz${pendingQuizzes.length === 1 ? '' : 'zes'} + ${
-                  assignmentCount - pendingQuizzes.length
+              : `${pendingQuizCount} quiz${pendingQuizCount === 1 ? '' : 'zes'} + ${
+                  assignmentCount - pendingQuizCount
                 } activities`
           }
           hintClass="text-purple-600"
@@ -380,7 +394,7 @@ export default function Dashboard({
       <section aria-label="Quizzes">
         <SectionHeader
           title="Quizzes"
-          count={`${quizzes.length} total`}
+          count={`${quizItems.length} total`}
           action="View all"
           onAction={goToAssignments}
         />
@@ -398,20 +412,22 @@ export default function Dashboard({
                       {quiz.subject}
                     </span>
                     <span>{quiz.teacher}</span>
-                    <span>{quiz.questions} questions</span>
-                    <span className="flex items-center gap-1">
-                      <ClockIcon className="h-3.5 w-3.5" />
-                      Due {formatShortDate(quiz.dueDate)}
-                    </span>
+                    <span>{quiz.questions.length} questions</span>
+                    {quiz.dueDate && (
+                      <span className="flex items-center gap-1">
+                        <ClockIcon className="h-3.5 w-3.5" />
+                        Due {formatShortDate(quiz.dueDate)}
+                      </span>
+                    )}
                   </p>
                 </div>
                 <div className="flex flex-none items-center gap-3">
                   <span
                     className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                      assignmentStatusMeta[quiz.status].chipClass
+                      assignmentStatusMeta[getStatus(quiz.id)].chipClass
                     }`}
                   >
-                    {assignmentStatusMeta[quiz.status].label}
+                    {assignmentStatusMeta[getStatus(quiz.id)].label}
                   </span>
                   <button
                     type="button"
@@ -435,7 +451,7 @@ export default function Dashboard({
           </div>
         )}
         <p className="mt-3 text-xs text-neutral-500">
-          Taking a quiz is not implemented yet — these are mock assignments only.
+          Open a quiz to take it right here — attempts are kept for this browser session only.
         </p>
       </section>
 
